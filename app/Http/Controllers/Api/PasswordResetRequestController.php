@@ -58,12 +58,12 @@ class PasswordResetRequestController extends Controller
     {
         return response()->json([
             'error' => 'Cet Email n\'existe pas'
-        ],Response::HTTP_NOT_FOUND);
+        ],404);
     }
     public function successResponse()
     {
         return response()->json([
-            'data' => 'Email envoyé'
-        ],Response::HTTP_OK);
+            'message' => 'Email envoyé'
+        ],200);
     }
 }
