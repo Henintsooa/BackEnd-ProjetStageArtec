@@ -21,20 +21,34 @@ class AuthController extends Controller
             'name' => 'required|string',
             'email' => 'required|email|unique:users,email',
             'password' => [
-                'required',
-                'confirmed',
-                'string',
-                'min:8',
-                'regex:/[a-z]/',
-                'regex:/[A-Z]/',
-                'regex:/[0-9]/',
-                'regex:/[@$!%*?&.,;:]/'
+            'required',
+            'confirmed',
+            'string',
+            'min:8',
+            'regex:/[a-z]/',
+            'regex:/[A-Z]/',
+            'regex:/[0-9]/',
+            'regex:/[@$!%*?&.,;:]/'
             ],
-            'password_confirmation' => 'required|string|min:8'
+            'password_confirmation' => 'required|string|min:8|same:password'
         ], [
+            'name.required' => 'Le nom est requis.',
+            'name.string' => 'Le nom doit être une chaîne de caractères.',
+            'name.max' => 'Le nom ne peut pas dépasser 255 caractères.',
+
+            'email.required' => 'L\'email est requis.',
+            'email.email' => 'L\'email doit être une adresse email valide.',
+            'email.unique' => 'Cet email est déjà utilisé.',
+
+            'password.required' => 'Le mot de passe est requis.',
+            'password.confirmed' => 'Les mots de passe ne correspondent pas.',
+            'password.string' => 'Le mot de passe doit être une chaîne de caractères.',
             'password.min' => 'Le mot de passe doit comporter au moins 8 caractères.',
             'password.regex' => 'Le mot de passe doit contenir au moins une lettre majuscule, une lettre minuscule, un chiffre et un caractère spécial.',
+
             'password_confirmation.required' => 'La confirmation du mot de passe est requise.',
+            'password_confirmation.string' => 'La confirmation du mot de passe doit être une chaîne de caractères.',
+            'password_confirmation.min' => 'La confirmation du mot de passe doit comporter au moins 8 caractères.',
         ]);
 
         DB::beginTransaction();
@@ -70,6 +84,14 @@ class AuthController extends Controller
             'idville' => 'required|integer|exists:ville,idville',
             'telephone' => 'required|string',
             'telecopie' => 'nullable|string'
+        ], [
+            'nom.required' => 'Le nom de l\'opérateur est requis.',
+
+            'adresse.required' => 'L\'adresse de l\'opérateur est requise.',
+
+            'idville.required' => 'La ville de l\'opérateur est requise.',
+
+            'telephone.required' => 'Le numéro de téléphone de l\'opérateur est requis.',
         ]);
 
         DB::table('operateur')->insert([

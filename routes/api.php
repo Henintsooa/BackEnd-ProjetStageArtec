@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\MailController;
 use App\Http\Controllers\Api\PasswordResetRequestController;
 use App\Http\Controllers\Api\ChangePasswordController;
+use App\Http\Controllers\Api\VilleController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -20,6 +21,9 @@ use App\Http\Controllers\Api\ChangePasswordController;
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //     return $request->user();
 // });
+
+
+Route::get('/villes', [VilleController::class, 'index']);
 
 Route::post('/resetPassword', [ChangePasswordController::class, 'passwordResetProcess']);
 Route::post('/sendPasswordResetLink', [PasswordResetRequestController::class, 'sendEmail']);
