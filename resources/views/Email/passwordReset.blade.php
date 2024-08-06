@@ -16,7 +16,7 @@
             <h3 class="card-title">Réinitialiser votre mot de passe</h3>
             <p class="card-text">Bonjour,</p>
             <p class="card-text">
-              Nous avons reçu une demande pour réinitialiser votre mot de passe. Cliquez sur le bouton ci-dessous pour réinitialiser votre mot de passe.
+              Nous avons reçu une demande pour réinitialiser votre mot de passe. Cliquez sur le lien ci-dessous pour réinitialiser votre mot de passe.
             </p>
             <a href="{{ url('http://localhost:4200/resetPassword?token=' . $token . '&email=' . urlencode($email)) }}" class="btn btn-primary">Réinitialiser le mot de passe</a>
             <p class="mt-4">Merci,<br>Artec</p>

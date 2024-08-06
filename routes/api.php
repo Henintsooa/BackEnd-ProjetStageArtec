@@ -7,6 +7,7 @@ use App\Http\Controllers\MailController;
 use App\Http\Controllers\Api\PasswordResetRequestController;
 use App\Http\Controllers\Api\ChangePasswordController;
 use App\Http\Controllers\Api\VilleController;
+use App\Http\Controllers\Api\FormulaireController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -31,9 +32,20 @@ Route::post('/sendEmail', [MailController::class, 'sendEmail']);
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
+Route::get('/formulaire/types', [FormulaireController::class, 'getTypeFormulaireDetails']);
+Route::get('/formulaire/type/{idTypeFormulaire}', [FormulaireController::class, 'getFormulaireByType']);
+
+Route::get('/type-questions', [FormulaireController::class, 'getTypeQuestions']);
+Route::get('/categories-questions', [FormulaireController::class, 'getCategoriesQuestions']);
+Route::post('/addCategory', [FormulaireController::class, 'addCategory']);
+Route::post('/addFormulaire', [FormulaireController::class, 'addFormulaire']);
+Route::delete('/formulaires/{id}', [FormulaireController::class, 'supprimerFormulaire']);
+Route::get('/formulaires/{id}', [FormulaireController::class, 'getFormulaireById']);
+Route::post('/editFormulaire/{idTypeFormulaire}', [FormulaireController::class, 'editFormulaire']);
 
 
 Route::middleware('auth:api')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
 
 });

@@ -20,6 +20,7 @@ class Operateur extends Model
         'telephone',
         'telecopie',
         'email',
+        'idstructurejuridique',
     ];
 
     public function user()
