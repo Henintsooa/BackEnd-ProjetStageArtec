@@ -145,6 +145,11 @@ CREATE TABLE operateurCible (
     idVille int NOT NULL,
     FOREIGN KEY (idVille) REFERENCES ville(idVille)
 );
+ALTER TABLE operateurCible ADD COLUMN status INT DEFAULT 0;
+
+INSERT INTO operateurCible (nom, email, idVille) VALUES
+('Operateur1', 'henintsoarjtv@gmail.com', 1),
+('Operateur2', 'henintsoa1901@gmail.com', 2);
 
 CREATE TABLE sensibilisation (
     idSensibilisation  SERIAL PRIMARY KEY,
@@ -154,6 +159,7 @@ CREATE TABLE sensibilisation (
     dateSensibilisation timestamp NOT NULL,
     dateConversion timestamp,
     FOREIGN KEY (idOperateurCible) REFERENCES operateurCible(idOperateurCible)
+    FOREIGN KEY (idOperateur) REFERENCES operateurCible(idOperateur)
 );
 
 php artisan make:controller Api/AuthController
@@ -210,3 +216,41 @@ FROM
 RIGHT JOIN
     typeFormulaire tf ON f.idTypeFormulaire = tf.idTypeFormulaire;
 
+CREATE OR REPLACE VIEW operateurCibleDetails AS
+SELECT
+    o.idOperateurCible,
+    o.nom AS nom,
+    o.email AS email,
+    v.idville AS idville,
+    v.nom AS ville,
+    o.status AS status,
+    s.idSensibilisation AS idSensibilisation,
+    s.idOperateur AS idOperateur,
+    s.dateSensibilisation AS dateSensibilisation,
+    s.dateConversion AS dateConversion,
+    s.status AS sensibilisationStatus
+FROM
+    operateurCible o
+JOIN
+    ville v ON o.idVille = v.idVille
+LEFT JOIN
+    sensibilisation s ON o.idOperateurCible = s.idOperateurCible AND o.status = 0;
+
+
+CREATE OR REPLACE VIEW OperateurConvertir AS
+SELECT o.*,s.dateconversion, s.status
+FROM operateur o
+LEFT JOIN sensibilisation s ON o.idOperateur = s.idOperateur
+WHERE s.status IS NULL
+
+CREATE OR REPLACE VIEW OperateurCiblesConvertir AS
+SELECT o.*,s.dateconversion, s.status
+FROM operateurcible o
+LEFT JOIN sensibilisation s ON o.idOperateurCible = s.idOperateurCible
+WHERE s.status <> 1 or s.status is null  and o.status = 0
+
+CREATE OR REPLACE VIEW OperateurCiblesConvertir AS
+SELECT o.*
+FROM operateurcible o
+LEFT JOIN sensibilisation s ON o.idOperateurCible = s.idOperateurCible
+WHERE s.status IS NULL and o.status = 0

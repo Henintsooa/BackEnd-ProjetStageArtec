@@ -206,7 +206,7 @@ class AuthController extends Controller
                 'status' => 200,
                 'token' => $token,
                 'user' => $user,
-                'role' => $role // Inclure le rôle dans la réponse
+                'role' => $role
             ]);
         } catch (JWTException $e) {
             // Les erreurs liées au token

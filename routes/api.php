@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\PasswordResetRequestController;
 use App\Http\Controllers\Api\ChangePasswordController;
 use App\Http\Controllers\Api\VilleController;
 use App\Http\Controllers\Api\FormulaireController;
+use App\Http\Controllers\Api\SensibilisationController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -43,6 +44,16 @@ Route::delete('/formulaires/{id}', [FormulaireController::class, 'supprimerFormu
 Route::get('/formulaires/{id}', [FormulaireController::class, 'getFormulaireById']);
 Route::post('/editFormulaire/{idTypeFormulaire}', [FormulaireController::class, 'editFormulaire']);
 
+
+Route::post('/addOperateurCible', [SensibilisationController::class, 'addOperateurCible']);
+Route::get('/operateurCibles', [SensibilisationController::class, 'operateurCibles']);
+Route::delete('/operateurCible/{id}', [SensibilisationController::class, 'supprimerOperateurCible']);
+Route::post('/editOperateurCible/{id}', [SensibilisationController::class, 'editOperateurCible']);
+Route::get('/operateurCibleById/{id}', [SensibilisationController::class, 'operateurCibleById']);
+Route::post('/sendEmailSensibilisation', [SensibilisationController::class, 'sendEmailSensibilisation']);
+Route::post('/convertirOperateur', [SensibilisationController::class, 'updateOrInsertSensibilisation']);
+Route::get('/getOperateurs', [SensibilisationController::class, 'getOperateurs']);
+Route::get('/getOperateurCibles', [SensibilisationController::class, 'getOperateurCibles']);
 
 Route::middleware('auth:api')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

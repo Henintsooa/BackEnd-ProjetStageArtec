@@ -75,7 +75,7 @@ class FormulaireController extends Controller
     public function addFormulaire(Request $request)
     {
         try {
-            // Valider les données de la requête
+
             $request->validate([
                 'type_formulaire_nom' => 'required|string|max:255',
                 'description' => 'string|max:255',
@@ -110,10 +110,16 @@ class FormulaireController extends Controller
             $typeFormulaire = TypeFormulaire::where('nom', $request->type_formulaire_nom)->first();
 
             // Créez un nouveau type de formulaire si nécessaire
-            if (!$typeFormulaire) {
+            if ($typeFormulaire) {
+                if ($typeFormulaire->status == 1) {
+                    $typeFormulaire->status = 0;
+                    $typeFormulaire->save();
+                }
+            } else {
+                // Créez un nouveau type de formulaire si nécessaire
                 $typeFormulaire = TypeFormulaire::create([
                     'nom' => $request->type_formulaire_nom,
-                    'description' => $request->description, // Vous pouvez ajouter une description si nécessaire
+                    'description' => $request->description,
                 ]);
             }
 
@@ -121,7 +127,7 @@ class FormulaireController extends Controller
             $formulaire = Formulaire::create([
                 'idtypeformulaire' => $typeFormulaire->idtypeformulaire,
                 'nom' => $request->nom_formulaire,
-                'datecreation' => now(), // Assurez-vous que cette colonne est présente dans votre table
+                'datecreation' => now(),
                 'status' =>  0,
             ]);
 
@@ -136,17 +142,13 @@ class FormulaireController extends Controller
                 ]);
             }
 
-            return response()->json(['message' => 'Formulaire créé avec succès !'], 201);
+            return response()->json(['message' => 'Formulaire créé avec succès !'], 200);
 
-        } catch (ValidationException $e) {
-            return response()->json([
-                'error' => 'Erreur de validation',
-                'details' => $e->errors()  // Renvoyer les erreurs de validation spécifiques
-            ], 422);
         } catch (\Exception $e) {
             return response()->json([
+                'status' => 500,
                 'error' => 'Erreur lors de la création du formulaire',
-                'details' => $e->getMessage()
+                'message' => $e->getMessage()
             ], 500);
         }
     }

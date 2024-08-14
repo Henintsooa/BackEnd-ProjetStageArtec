@@ -29,7 +29,7 @@ class SendMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Send Mail',
+            subject: 'Déclaration auprès de l\'ARTEC',
         );
     }
 
@@ -39,7 +39,7 @@ class SendMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'mailResetPassword',
+            view: 'Email.mailSensibilisation',
         );
     }
 
