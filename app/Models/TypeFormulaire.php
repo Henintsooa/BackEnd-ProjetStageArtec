@@ -17,6 +17,7 @@ class TypeFormulaire extends Model
         'nom',
         'description',
         'status',
+        'image',
     ];
 
 }

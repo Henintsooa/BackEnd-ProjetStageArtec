@@ -14,7 +14,9 @@ class TypeFormulaireDetails extends Model
         'datecreationformulaire',
         'idtypeformulaire',
         'nomtypeformulaire',
-        'descriptiontypeformulaire'
+        'descriptiontypeformulaire',
+        'status',
+        'image',
     ];
 
 

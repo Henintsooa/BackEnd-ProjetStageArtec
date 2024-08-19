@@ -7,8 +7,10 @@ use App\Http\Controllers\MailController;
 use App\Http\Controllers\Api\PasswordResetRequestController;
 use App\Http\Controllers\Api\ChangePasswordController;
 use App\Http\Controllers\Api\VilleController;
+use App\Http\Controllers\Api\StructureJuridiqueController;
 use App\Http\Controllers\Api\FormulaireController;
 use App\Http\Controllers\Api\SensibilisationController;
+use App\Http\Controllers\Api\DemandeController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -26,6 +28,7 @@ use App\Http\Controllers\Api\SensibilisationController;
 
 
 Route::get('/villes', [VilleController::class, 'index']);
+Route::get('/structuresJuridiques', [StructureJuridiqueController::class, 'index']);
 
 Route::post('/resetPassword', [ChangePasswordController::class, 'passwordResetProcess']);
 Route::post('/sendPasswordResetLink', [PasswordResetRequestController::class, 'sendEmail']);
@@ -54,6 +57,8 @@ Route::post('/sendEmailSensibilisation', [SensibilisationController::class, 'sen
 Route::post('/convertirOperateur', [SensibilisationController::class, 'updateOrInsertSensibilisation']);
 Route::get('/getOperateurs', [SensibilisationController::class, 'getOperateurs']);
 Route::get('/getOperateurCibles', [SensibilisationController::class, 'getOperateurCibles']);
+
+Route::post('/demande', [DemandeController::class, 'store']);
 
 Route::middleware('auth:api')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

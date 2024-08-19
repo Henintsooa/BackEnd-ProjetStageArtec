@@ -23,24 +23,29 @@ CREATE TABLE operateur (
     idOperateur  SERIAL PRIMARY KEY,
     id int NOT NULL,
     nom VARCHAR(200),
+    FOREIGN KEY (id) REFERENCES users(id)
+);
+
+CREATE TABLE operateurInformation (
+    idOperateurInformation  SERIAL PRIMARY KEY,
+    idOperateur int,
     adresse VARCHAR(200),
     idVille int,
     telephone VARCHAR(200),
     telecopie VARCHAR(200),
     email VARCHAR(200),
     idStructureJuridique int,
-    FOREIGN KEY (id) REFERENCES users(id),
+    FOREIGN KEY (idOperateur) REFERENCES operateur(idOperateur),
     FOREIGN KEY (idVille) REFERENCES ville(idVille),
     FOREIGN KEY (idStructureJuridique) REFERENCES structureJuridique(idStructureJuridique)
-);
-
-
+)
 
 CREATE TABLE typeFormulaire (
     idTypeFormulaire  SERIAL PRIMARY KEY,
     nom VARCHAR(200) NOT NULL,
     description VARCHAR(200) NOT NULL,
     status int default 0,
+    image VARCHAR(500)
 
 );
 INSERT INTO typeFormulaire(nom, description) VALUES ('Formulaire pour équipement terminaux ou services auxiliaires', 'Formulaire de déclaration fourniture au public d''équipement terminaux ou de service auxiliaires aux télécommunications');
@@ -118,12 +123,12 @@ INSERT INTO question(idFormulaire, textQuestion, idTypeQuestion,questionObligato
 
 CREATE TABLE demande (
     idDemande  SERIAL PRIMARY KEY,
-    idOperateur int,
+    idOperateurInformation int,
     idFormulaire int,
     dateDeclaration timestamp NOT NULL,
     dateExpiration timestamp NOT NULL,
     status int,
-    FOREIGN KEY (idOperateur) REFERENCES operateur(idOperateur),
+    FOREIGN KEY (idOperateurInformation) REFERENCES operateurInformation(idOperateurInformation),
     FOREIGN KEY (idFormulaire) REFERENCES formulaire(idFormulaire)
 );
 
@@ -175,12 +180,14 @@ SELECT
     f.idtypeformulaire,
     tf.nom AS nomTypeFormulaire,
     tf.description AS descriptionTypeFormulaire,
+    tf.image AS image,
     q.idQuestion,
     q.textQuestion,
     tq.idtypequestion AS idtypequestion,
     tq.nom AS typeQuestion,
     tq.designation AS designationTypeQuestion,
     q.questionobligatoire,
+    cq.idcategoriequestion AS idcategoriequestion,
     cq.nom AS categorieQuestion,
     cq.nombrereponses AS nombreReponses
 FROM
@@ -203,7 +210,8 @@ SELECT
     tf.idTypeFormulaire,
     tf.nom AS nomTypeFormulaire,
     tf.description AS descriptionTypeFormulaire,
-    tf.status AS status
+    tf.status AS status,
+    tf.image AS image
 FROM
     (SELECT DISTINCT ON (idTypeFormulaire)
             idFormulaire,

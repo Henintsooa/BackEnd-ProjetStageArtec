@@ -15,12 +15,6 @@ class Operateur extends Model
     protected $fillable = [
         'id',
         'nom',
-        'adresse',
-        'idville',
-        'telephone',
-        'telecopie',
-        'email',
-        'idstructurejuridique',
     ];
 
     public function user()

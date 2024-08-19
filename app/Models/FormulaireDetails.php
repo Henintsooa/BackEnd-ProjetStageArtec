@@ -23,5 +23,6 @@ class FormulaireDetails extends Model
         'designationtypequestion',
         'questionobligatoire',
         'categoriequestion',
+        'image'
     ];
 }

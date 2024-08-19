@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\DB;
 use App\Models\TypeQuestion;
 use App\Models\Question;
 use App\Models\CategorieQuestion;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class FormulaireController extends Controller
 {
@@ -86,6 +88,7 @@ class FormulaireController extends Controller
                 'questions.*.type' => 'required|integer|exists:typequestion,idtypequestion',
                 'questions.*.obligatoire' => 'boolean',
                 'questions.*.categorie_id' => 'required|integer|exists:categoriequestion,idcategoriequestion',
+                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             ], [
                 'type_formulaire_nom.required' => 'Le nom du type de formulaire est obligatoire.',
                 'type_formulaire_nom.string' => 'Le nom du type de formulaire doit être une chaîne de caractères.',
@@ -106,6 +109,17 @@ class FormulaireController extends Controller
                 'questions.*.categorie_id.exists' => 'La catégorie de la question sélectionnée est invalide.',
             ]);
 
+            $imagePath = null;
+            if ($request->hasFile('image')) {
+                $image = $request->file('image');
+                $imageName = $image->getClientOriginalName();
+                $imagePath = $image->storeAs('public/img', $imageName);
+                $imagePath = str_replace('public/', 'storage/', $imagePath);
+                \Log::info('Fichier reçu:', ['name' => $image->getClientOriginalName(), 'size' => $image->getSize()]);
+            }else{
+                \Log::info('Aucun fichier reçu');
+            }
+
             // Vérifiez si le type de formulaire existe déjà
             $typeFormulaire = TypeFormulaire::where('nom', $request->type_formulaire_nom)->first();
 
@@ -120,6 +134,8 @@ class FormulaireController extends Controller
                 $typeFormulaire = TypeFormulaire::create([
                     'nom' => $request->type_formulaire_nom,
                     'description' => $request->description,
+                    'status' =>  0,
+                    'image' => $imagePath
                 ]);
             }
 
@@ -128,7 +144,6 @@ class FormulaireController extends Controller
                 'idtypeformulaire' => $typeFormulaire->idtypeformulaire,
                 'nom' => $request->nom_formulaire,
                 'datecreation' => now(),
-                'status' =>  0,
             ]);
 
             // Insérer les questions associées
@@ -142,7 +157,10 @@ class FormulaireController extends Controller
                 ]);
             }
 
-            return response()->json(['message' => 'Formulaire créé avec succès !'], 200);
+            return response()->json([
+                'message' => 'Formulaire créé avec succès !',
+                'image_url' => $imagePath ? Storage::url($imagePath) : null
+            ], 200);
 
         } catch (\Exception $e) {
             return response()->json([
@@ -179,6 +197,7 @@ class FormulaireController extends Controller
                 ->orderBy('idformulaire', 'desc')
                 ->first();
 
+
             if ($lastFormulaire) {
                 // Récupération des détails du formulaire
                 $formulaireDetails = FormulaireDetails::where('idformulaire', $lastFormulaire->idformulaire)
@@ -196,6 +215,7 @@ class FormulaireController extends Controller
                     'idtypeformulaire' => $lastFormulaire->idtypeformulaire,
                     'nomtypeformulaire' => $lastFormulaire->nomtypeformulaire,
                     'descriptiontypeformulaire' => $lastFormulaire->descriptiontypeformulaire,
+                    'image' => $lastFormulaire->image,
                     'questions' => $formulaireDetails->map(function ($detail) {
                         return [
                             'idquestion' => $detail->idquestion,
@@ -236,6 +256,7 @@ class FormulaireController extends Controller
             'questions.*.type' => 'required|integer|exists:typequestion,idtypequestion',
             'questions.*.obligatoire' => 'boolean',
             'questions.*.categorie_id' => 'required|integer|exists:categoriequestion,idcategoriequestion',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         try {
@@ -248,13 +269,41 @@ class FormulaireController extends Controller
                 'description' => $request->description,
             ]);
 
-            // Création d'un nouveau formulaire
-            $formulaire = Formulaire::create([
-                'idtypeformulaire' => $idTypeFormulaire,
-                'nom' => $request->nom_formulaire,
-                'datecreation' => now(),
-                'status' => 0,
-            ]);
+            // Gestion de l'image si fournie
+            $imagePath = $typeFormulaire->image; // Chemin actuel de l'image
+            if ($request->hasFile('image')) {
+                // Supprimer l'ancienne image si elle existe
+                if ($imagePath && Storage::exists('public/' . $imagePath)) {
+                    Storage::delete('public/' . $imagePath);
+                }
+
+                $image = $request->file('image');
+                $imageName = $image->getClientOriginalName();
+                $imagePath = $image->storeAs('public/img', $imageName);
+                $imagePath = str_replace('public/', 'storage/', $imagePath);
+
+                \Log::info('Image uploadée:', ['name' => $imageName, 'path' => $imagePath]);
+
+            } else {
+                \Log::info('Aucune image reçue pour le formulaire');
+            }
+
+            $typeFormulaire->image = $imagePath; // Mettre à jour le chemin de l'image
+            $typeFormulaire->save();
+
+            // Création ou mise à jour du formulaire
+            $formulaire = Formulaire::updateOrCreate(
+                ['idformulaire' => $request->idformulaire],
+                [
+                    'idtypeformulaire' => $idTypeFormulaire,
+                    'nom' => $request->nom_formulaire,
+                    'datecreation' => now(),
+                    'status' => 0,
+                ]
+            );
+
+            // Suppression des anciennes questions associées si nécessaire
+            Question::where('idformulaire', $formulaire->idformulaire)->delete();
 
             // Ajout des nouvelles questions
             foreach ($request->questions as $question) {
@@ -269,7 +318,7 @@ class FormulaireController extends Controller
 
             DB::commit();
 
-            return response()->json(['message' => 'Formulaire modifié avec succès !'], 201);
+            return response()->json(['message' => 'Formulaire modifié avec succès !'], 200);
 
         } catch (ValidationException $e) {
             DB::rollBack();
@@ -285,5 +334,6 @@ class FormulaireController extends Controller
             ], 500);
         }
     }
+
 
 }

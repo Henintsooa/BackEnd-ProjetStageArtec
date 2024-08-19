@@ -198,13 +198,22 @@ class AuthController extends Controller
             // Récupérer les informations de l'utilisateur connecté
             $user = JWTAuth::setToken($token)->authenticate();
 
+            // Créer un token avec un payload personnalisé
+            $customPayload = [
+                'id' => $user->id,
+                'email' => $user->email,
+                // Ajoutez d'autres champs si nécessaire
+            ];
+            $customToken = JWTAuth::fromUser($user, $customPayload);
+
+
             // Déterminer le rôle de l'utilisateur
             $role = $user->status;
 
             // Retourner les informations de l'utilisateur et son rôle
             return response()->json([
                 'status' => 200,
-                'token' => $token,
+                'token' => $customToken,
                 'user' => $user,
                 'role' => $role
             ]);
