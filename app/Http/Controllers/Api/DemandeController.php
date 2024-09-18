@@ -291,6 +291,7 @@ class DemandeController extends Controller
                                  ->orWhere('typedemande', 'ILIKE', $keyword)
                                  ->orWhere('nomville', 'ILIKE', $keyword)
                                  ->orWhere('nomtypeformulaire', 'ILIKE', $keyword)
+                                 ->orWhere('nomregime', 'ILIKE', $keyword)
                                  ->orWhere(DB::raw('TO_CHAR(datedemande, \'YYYY-MM-DD\')'), 'LIKE', $keyword)
                                  ->orWhere(DB::raw('TO_CHAR(dateexpiration, \'YYYY-MM-DD\')'), 'LIKE', $keyword)
                                  ->orWhere(DB::raw('TO_CHAR(datedeclaration, \'YYYY-MM-DD\')'), 'LIKE', $keyword);

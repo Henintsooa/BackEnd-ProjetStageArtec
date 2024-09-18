@@ -3,31 +3,50 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Demande d'information d'opérateur</title>
+  <title>Demande d'information - Opérateur</title>
   <link href="{{ asset('css/bootstrap.min.css') }}" rel="stylesheet">
   <link href="{{ asset('soft-ui-dashboard.css?v=1.0.3') }}" rel="stylesheet">
+  <style>
+    .card-body {
+      font-size: 16px;
+      line-height: 1.6;
+    }
+    .card-title {
+      font-size: 20px;
+      font-weight: bold;
+      color: #2d3436;
+      text-align: center;
+    }
+    p {
+      margin-bottom: 1.2em;
+    }
+    .signature {
+      font-weight: bold;
+      margin-top: 20px;
+    }
+  </style>
 </head>
 <body>
   <div class="container my-5">
     <div class="row justify-content-center">
       <div class="col-lg-6">
-        <div class="card">
+        <div class="card shadow">
           <div class="card-body">
-            <h3 class="card-title">Demande d'information de l'opérateur {{ $nomoperateur }}</h3>
+            <h3 class="card-title">Demande d'information - {{ $nomoperateur }}</h3>
             <p class="card-text">
               Bonjour,
             </p>
             <p>
-              Je suis {{ $userName }}, {{ $nomoperateur }}. J'aimerais avoir plus d'informations concernant les procédures ou les règles de déclaration, notamment sur :
+              Je suis {{ $userName }}, représentant de {{ $nomoperateur }}. Je souhaiterais obtenir des informations complémentaires concernant les procédures de déclaration, notamment sur les points suivants :
             </p>
-            <p>
+            <p class="card-text">
               {{ $userMessage }}
             </p>
             <p>
-              Je vous remercie par avance pour votre retour et suis à votre disposition pour toute question complémentaire.
+              Je vous remercie par avance pour votre réponse et reste disponible pour toute information supplémentaire.
             </p>
             <p>Cordialement,</p>
-            <p>{{ $userName }}<br>{{ $userEmail }}</p>
+            <p class="signature">{{ $userName }}<br>{{ $userEmail }}</p>
           </div>
         </div>
       </div>

@@ -241,6 +241,7 @@ SELECT
     tf.nom AS nomTypeFormulaire,
     tf.description AS descriptionTypeFormulaire,
     tf.image AS image,
+    tf.anneeValidite AS anneeValidite,
     r.idregime AS idregime,
     r.nom AS nomRegime,
     q.idQuestion,

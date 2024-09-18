@@ -79,7 +79,6 @@ class FormulaireController extends Controller
         try {
 
             $request->validate([
-                'type_formulaire_nom' => 'required|string|max:255',
                 'description' => 'string|max:255',
                 'nom_formulaire' => 'required|string|max:255',
                 'date_creation' => 'date',
@@ -88,10 +87,10 @@ class FormulaireController extends Controller
                 'questions.*.type' => 'required|integer|exists:typequestion,idtypequestion',
                 'questions.*.obligatoire' => 'boolean',
                 'questions.*.categorie_id' => 'required|integer|exists:categoriequestion,idcategoriequestion',
-                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'anneevalidite' => 'integer',
+                'idregime' => 'integer|exists:regime,idregime',
             ], [
-                'type_formulaire_nom.required' => 'Le nom du type de formulaire est obligatoire.',
-                'type_formulaire_nom.string' => 'Le nom du type de formulaire doit être une chaîne de caractères.',
                 'description.string' => 'La description doit être une chaîne de caractères.',
                 'nom_formulaire.required' => 'Le nom du formulaire est obligatoire.',
                 'nom_formulaire.string' => 'Le nom du formulaire doit être une chaîne de caractères.',
@@ -109,11 +108,13 @@ class FormulaireController extends Controller
                 'questions.*.categorie_id.exists' => 'La catégorie de la question sélectionnée est invalide.',
             ]);
 
+            \Log::info('idregime:', ['idregime' => $request->idregime]);
+
             $imagePath = null;
             if ($request->hasFile('image')) {
                 $image = $request->file('image');
                 $imageName = $image->getClientOriginalName();
-                $imagePath = $image->storeAs('public/img', $imageName);
+                $imagePath = $image->storeAs('img', $imageName);
                 $imagePath = str_replace('public/', 'storage/', $imagePath);
                 \Log::info('Fichier reçu:', ['name' => $image->getClientOriginalName(), 'size' => $image->getSize()]);
             }else{
@@ -121,7 +122,7 @@ class FormulaireController extends Controller
             }
 
             // Vérifiez si le type de formulaire existe déjà
-            $typeFormulaire = TypeFormulaire::where('nom', $request->type_formulaire_nom)->first();
+            $typeFormulaire = TypeFormulaire::where('nom', $request->nom_formulaire)->first();
 
             // Créez un nouveau type de formulaire si nécessaire
             if ($typeFormulaire) {
@@ -131,12 +132,19 @@ class FormulaireController extends Controller
                 }
             } else {
                 // Créez un nouveau type de formulaire si nécessaire
-                $typeFormulaire = TypeFormulaire::create([
-                    'nom' => $request->type_formulaire_nom,
+                $typeFormulaireData = [
+                    'nom' => $request->nom_formulaire,
                     'description' => $request->description,
                     'status' =>  0,
-                    'image' => $imagePath
-                ]);
+                    'image' => 'storage/' . $imagePath,
+                    'idregime' => $request->idregime,
+                ];
+
+                if ($request->filled('anneevalidite')) {
+                    $typeFormulaireData['anneevalidite'] = $request->anneevalidite;
+                }
+
+                $typeFormulaire = TypeFormulaire::create($typeFormulaireData);
             }
 
             // Créer un nouveau formulaire
@@ -215,6 +223,9 @@ class FormulaireController extends Controller
                     'idtypeformulaire' => $lastFormulaire->idtypeformulaire,
                     'nomtypeformulaire' => $lastFormulaire->nomtypeformulaire,
                     'descriptiontypeformulaire' => $lastFormulaire->descriptiontypeformulaire,
+                    'idregime' => $lastFormulaire->idregime,
+                    'nomregime' => $lastFormulaire->nomregime,
+                    'anneevalidite' => $lastFormulaire->anneevalidite,
                     'image' => $lastFormulaire->image,
                     'questions' => $formulaireDetails->map(function ($detail) {
                         return [
@@ -248,7 +259,6 @@ class FormulaireController extends Controller
     public function editFormulaire(Request $request, $idTypeFormulaire)
     {
         $this->validate($request, [
-            'type_formulaire_nom' => 'required|string|max:255',
             'description' => 'string|max:255',
             'nom_formulaire' => 'required|string|max:255',
             'questions' => 'required|array',
@@ -257,6 +267,8 @@ class FormulaireController extends Controller
             'questions.*.obligatoire' => 'boolean',
             'questions.*.categorie_id' => 'required|integer|exists:categoriequestion,idcategoriequestion',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'anneevalidite' => 'integer',
+            'idregime' => 'integer|exists:regime,idregime',
         ]);
 
         try {
@@ -265,8 +277,10 @@ class FormulaireController extends Controller
             // Mise à jour du type de formulaire
             $typeFormulaire = TypeFormulaire::findOrFail($idTypeFormulaire);
             $typeFormulaire->update([
-                'nom' => $request->type_formulaire_nom,
+                'nom' => $request->nom_formulaire,
                 'description' => $request->description,
+                'idregime' => $request->idregime,
+                'anneevalidite' => $request->filled('anneevalidite') ? $request->anneevalidite : $typeFormulaire->anneevalidite
             ]);
 
             // Gestion de l'image si fournie
@@ -279,7 +293,7 @@ class FormulaireController extends Controller
 
                 $image = $request->file('image');
                 $imageName = $image->getClientOriginalName();
-                $imagePath = $image->storeAs('public/img', $imageName);
+                $imagePath = $image->storeAs('img', $imageName);
                 $imagePath = str_replace('public/', 'storage/', $imagePath);
 
                 \Log::info('Image uploadée:', ['name' => $imageName, 'path' => $imagePath]);

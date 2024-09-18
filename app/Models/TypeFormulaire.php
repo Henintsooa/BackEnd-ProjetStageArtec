@@ -18,6 +18,8 @@ class TypeFormulaire extends Model
         'description',
         'status',
         'image',
+        'anneevalidite',
+        'idregime',
     ];
 
 }

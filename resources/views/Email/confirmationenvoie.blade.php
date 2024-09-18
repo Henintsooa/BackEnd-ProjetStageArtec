@@ -6,27 +6,49 @@
   <title>Demande déclaration au près de l'ARTEC</title>
   <link href="{{ asset('css/bootstrap.min.css') }}" rel="stylesheet">
   <link href="{{ asset('soft-ui-dashboard.css?v=1.0.3') }}" rel="stylesheet">
+  <style>
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    ul li {
+      background: #f8f9fa;
+      border-radius: 5px;
+      padding: 10px;
+      margin-bottom: 10px;
+      font-size: 16px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+    }
+    ul li::before {
+      content: "\f058";
+      font-family: "FontAwesome";
+      color: #5cb85c;
+      margin-right: 10px;
+    }
+  </style>
 </head>
 <body>
   <div class="container my-5">
     <div class="row justify-content-center">
       <div class="col-lg-6">
-        <div class="card">
+        <div class="card shadow">
           <div class="card-body">
-            <h3 class="card-title">Demande déclaration au près de l'ARTEC</h3>
-            <ul>
-                <li>Formulaire : {{ $demande->nomtypeformulaire }}</li>
-                <li>Date de Déclaration : {{ \Carbon\Carbon::parse($demande->datedeclaration)->format('d/m/Y') }}</li>
-                <li>Région : {{ $demande->nomville }}</li>
-            </ul>
+            {{-- <h3 class="card-title text-center">Confirmation de votre demande</h3> --}}
             <p class="card-text">Cher Opérateur,</p>
             <p class="card-text">
-                Nous vous remercions d'avoir soumis votre déclaration.
-                Votre demande a été soumise avec succès et sera traitée dans les plus brefs délais. Nous vous tiendrons informé de la réponse par email.
-
-                Si vous avez des questions ou si vous souhaitez obtenir plus d'informations sur les raisons de notre décision, n'hésitez pas à nous contacter.
+              Nous vous remercions d'avoir soumis votre déclaration auprès de l'ARTEC. Votre demande a été enregistrée avec succès et sera traitée dans les plus brefs délais.
             </p>
-            <p>Cordialement,</p>
+            <ul>
+              <li><strong>Formulaire:</strong> {{ $demande->nomtypeformulaire }}</li>
+              <li><strong>Date de Déclaration:</strong> {{ \Carbon\Carbon::parse($demande->datedeclaration)->format('d/m/Y') }}</li>
+              <li><strong>Région:</strong> {{ $demande->nomville }}</li>
+            </ul>
+            <p class="card-text">
+              Nous vous informerons de la suite donnée à votre demande par email. Si vous avez des questions ou souhaitez plus d'informations, n'hésitez pas à nous contacter.
+            </p>
+            <p class="text-center mt-4">Cordialement,</p>
           </div>
         </div>
       </div>
