@@ -11,6 +11,7 @@ class Operateur extends Model
 
     protected $table = 'operateur';
     protected $primaryKey = 'idoperateur';
+    public $timestamps = false;
 
     protected $fillable = [
         'id',

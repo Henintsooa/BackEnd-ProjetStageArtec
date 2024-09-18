@@ -17,6 +17,8 @@ class TypeFormulaireDetails extends Model
         'descriptiontypeformulaire',
         'status',
         'image',
+        'idregime',
+        'nomregime',
     ];
 
 

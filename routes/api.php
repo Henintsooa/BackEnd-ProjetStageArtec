@@ -7,10 +7,15 @@ use App\Http\Controllers\MailController;
 use App\Http\Controllers\Api\PasswordResetRequestController;
 use App\Http\Controllers\Api\ChangePasswordController;
 use App\Http\Controllers\Api\VilleController;
+use App\Http\Controllers\Api\RegimeController;
 use App\Http\Controllers\Api\StructureJuridiqueController;
 use App\Http\Controllers\Api\FormulaireController;
 use App\Http\Controllers\Api\SensibilisationController;
 use App\Http\Controllers\Api\DemandeController;
+use App\Http\Controllers\Api\DashboardController;
+use App\Http\Controllers\Api\RenewalController;
+use App\Http\Controllers\Api\ContactController;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -28,6 +33,7 @@ use App\Http\Controllers\Api\DemandeController;
 
 
 Route::get('/villes', [VilleController::class, 'index']);
+Route::get('/regimes', [RegimeController::class, 'index']);
 Route::get('/structuresJuridiques', [StructureJuridiqueController::class, 'index']);
 
 Route::post('/resetPassword', [ChangePasswordController::class, 'passwordResetProcess']);
@@ -50,6 +56,7 @@ Route::post('/editFormulaire/{idTypeFormulaire}', [FormulaireController::class, 
 
 Route::post('/addOperateurCible', [SensibilisationController::class, 'addOperateurCible']);
 Route::get('/operateurCibles', [SensibilisationController::class, 'operateurCibles']);
+Route::get('/getOperateursHistorique', [SensibilisationController::class, 'operateurCiblesHistorique']);
 Route::delete('/operateurCible/{id}', [SensibilisationController::class, 'supprimerOperateurCible']);
 Route::post('/editOperateurCible/{id}', [SensibilisationController::class, 'editOperateurCible']);
 Route::get('/operateurCibleById/{id}', [SensibilisationController::class, 'operateurCibleById']);
@@ -58,10 +65,42 @@ Route::post('/convertirOperateur', [SensibilisationController::class, 'updateOrI
 Route::get('/getOperateurs', [SensibilisationController::class, 'getOperateurs']);
 Route::get('/getOperateurCibles', [SensibilisationController::class, 'getOperateurCibles']);
 
+
 Route::post('/demande', [DemandeController::class, 'store']);
+Route::get('/getDemandes', [DemandeController::class, 'getDemandes']);
+Route::get('/reponses/{id}', [DemandeController::class, 'getResponsesByDemande']);
+Route::get('/exportPdf/{id}', [DemandeController::class, 'exportPdf']);
+Route::get('/getDemandes/{id}', [DemandeController::class, 'getDemandesById']);
+
+
+
+Route::post('/accepterDemande/{id}', [DemandeController::class, 'accepterDemande']);
+Route::post('/refuserDemande/{id}', [DemandeController::class, 'refuserDemande']);
+Route::post('/demandes/{iddemande}/info-request', [DemandeController::class, 'sendInfoRequest']);
+Route::post('/addDateDeclaration/{iddemande}', [DemandeController::class, 'addDateDeclaration']);
+Route::post('/addDocumentSupplementaire/{iddemande}', [DemandeController::class, 'addDocumentSupplementaire']);
+
+
+Route::get('/statistics', [DashboardController::class, 'getStatistics']);
+Route::get('/demandesParRegion', [DashboardController::class, 'getDemandesValideesParRegion']);
+Route::get('/demandesParRegime', [DashboardController::class, 'getDemandesValideesParRegime']);
+Route::get('/demandesParTypeFormulaire', [DashboardController::class, 'getDemandesValideesParTypeFormulaire']);
+Route::get('/KPIDeclarationSensibilisation', [DashboardController::class, 'getKPIDeclarationSensibilisation']);
+
+Route::post('/check-renewals', [RenewalController::class, 'checkRenewals']);
+Route::get('/renouvellements', [RenewalController::class, 'getRenouvellements']);
+Route::post('/notifierOperateur', [RenewalController::class, 'notifierOperateurs']);
+Route::get('/renouvellements/{id}', [RenewalController::class, 'getRenouvellementsById']);
+
+Route::post('/contact', [ContactController::class, 'sendContactMessage']);
+
+Route::get('/operateur/{id}', [DemandeController::class, 'getOperateur']);
+
+
 
 Route::middleware('auth:api')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-
-
+    Route::get('/notifications', [DemandeController::class, 'getNotifications']);
+    Route::post('/notifications/{id}/read', [DemandeController::class, 'markNotificationAsRead']);
 });
+

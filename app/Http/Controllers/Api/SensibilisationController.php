@@ -23,6 +23,8 @@ class SensibilisationController extends Controller
                 'nom' => 'required|string|max:200',
                 'email' => 'required|email|max:200|unique:operateurcible,email',
                 'idville' => 'required|integer|exists:ville,idville',
+                'idregime' => 'required|integer|exists:regime,idregime',
+                'adresse' => 'required|string|max:200',
             ], [
                 'nom.required' => 'Le nom est requis.',
                 'nom.string' => 'Le nom doit être une chaîne de caractères.',
@@ -34,13 +36,23 @@ class SensibilisationController extends Controller
                 'idville.required' => 'L\'ID de la ville est requis.',
                 'idville.integer' => 'L\'ID de la ville doit être un entier.',
                 'idville.exists' => 'L\'ID de la ville doit exister dans la table des villes.',
+                'idregime.required' => 'L\'ID du régime est requis.',
+                'idregime.integer' => 'L\'ID du régime doit être un entier.',
+                'idregime.exists' => 'L\'ID du régime doit exister dans la table des régimes.',
+                'adresse.required' => 'L\'adresse est requise.',
+                'adresse.string' => 'L\'adresse doit être une chaîne de caractères.',
+                'adresse.max' => 'L\'adresse ne peut pas dépasser 200 caractères.',
             ]);
+            // Affichez les données avant l'insertion pour déboguer
+            \Log::info('Données reçues : ', $data);
 
             // Création de l'opérateur cible
             $operateurCible = OperateurCible::create([
                 'nom' => $data['nom'],
                 'email' => $data['email'],
                 'idville' => $data['idville'],
+                'idregime' => $data['idregime'],
+                'adresse' => $data['adresse'],
             ]);
 
             return response()->json([
@@ -58,17 +70,50 @@ class SensibilisationController extends Controller
         }
     }
 
+
     public function operateurCibles(Request $request)
     {
         $keyword = '%' . $request->keyword . '%';
         $operateurCibles = DB::table('operateurcibledetails')
             ->where('status', '=', 0)
-            ->whereNull('dateconversion')
             ->where(function($query) use ($keyword) {
                 $query->where('nom', 'ILIKE', $keyword)
                     ->orWhere('email', 'ILIKE', $keyword)
                     ->orWhere('ville', 'ILIKE', $keyword)
                     ->orWhere(DB::raw('TO_CHAR(datesensibilisation, \'YYYY-MM-DD\')'), 'LIKE', $keyword);
+            })
+            ->get();
+
+        return response()->json($operateurCibles);
+    }
+
+    public function operateurCiblesHistorique(Request $request)
+    {
+        // Diviser les mots-clés par espaces et les préparer pour la recherche
+        $keywords = explode(' ', $request->keyword);
+        $status = $request->status;
+
+        // Construire la requête pour les opérateurs cibles
+        $operateurCibles = DB::table('operateurcibledetails')
+            ->where(function($query) use ($keywords) {
+                foreach ($keywords as $keyword) {
+                    $keyword = '%' . $keyword . '%'; // Préparation pour le LIKE
+                    $query->where(function($subQuery) use ($keyword) {
+                        $subQuery->where('nom', 'ILIKE', $keyword)
+                                 ->orWhere('email', 'ILIKE', $keyword)
+                                 ->orWhere('ville', 'ILIKE', $keyword)
+                                 ->orWhere('nomregime', 'ILIKE', $keyword)
+                                 ->orWhere('adresse', 'ILIKE', $keyword)
+                                 ->orWhere(DB::raw('TO_CHAR(datesensibilisation, \'YYYY-MM-DD\')'), 'LIKE', $keyword);
+                    });
+                }
+            })
+            // Filtrer par status si fourni
+            ->when($status !== '', function ($query) use ($status) {
+                if ($status === 'null') {
+                    return $query->whereNull('sensibilisationstatus');
+                }
+                return $query->where('sensibilisationstatus', $status);
             })
             ->get();
 
@@ -103,6 +148,8 @@ class SensibilisationController extends Controller
                 'nom' => 'string|max:200',
                 'email' => 'email|max:200|unique:operateurcible,email,' . $id . ',idoperateurcible',
                 'idville' => 'integer|exists:ville,idville',
+                'idregime' => 'required|integer|exists:regime,idregime',
+                'adresse' => 'required|string|max:200',
             ], [
                 'nom.string' => 'Le nom doit être une chaîne de caractères.',
                 'nom.max' => 'Le nom ne peut pas dépasser 200 caractères.',
@@ -111,6 +158,12 @@ class SensibilisationController extends Controller
                 'email.unique' => 'L\'email est déjà utilisé.',
                 'idville.integer' => 'L\'ID de la ville doit être un entier.',
                 'idville.exists' => 'L\'ID de la ville doit exister dans la table des villes.',
+                'idregime.required' => 'L\'ID du régime est requis.',
+                'idregime.integer' => 'L\'ID du régime doit être un entier.',
+                'idregime.exists' => 'L\'ID du régime doit exister dans la table des régimes.',
+                'adresse.required' => 'L\'adresse est requise.',
+                'adresse.string' => 'L\'adresse doit être une chaîne de caractères.',
+                'adresse.max' => 'L\'adresse ne peut pas dépasser 200 caractères.',
             ]);
 
             // Trouver l'opérateur cible
@@ -121,6 +174,8 @@ class SensibilisationController extends Controller
                 'nom' => $data['nom'] ?? $operateurCible->nom,
                 'email' => $data['email'] ?? $operateurCible->email,
                 'idville' => $data['idville'] ?? $operateurCible->idville,
+                'idregime' => $data['idregime'] ?? $operateurCible->idregime,
+                'adresse' => $data['adresse'] ?? $operateurCible->adresse,
             ]));
 
             return response()->json([
@@ -163,14 +218,24 @@ class SensibilisationController extends Controller
                 $operateurCible = OperateurCible::where('email', $user['email'])->first();
 
                 if ($operateurCible) {
-                    // Insertion dans la table sensibilisation
-                    Sensibilisation::create([
-                        'idoperateurcible' => $operateurCible->idoperateurcible,
-                        'status' => 0,
-                        'idoperateur' => null,
-                        'datesensibilisation' => $dateNow,
-                        'dateconversion' => null
-                    ]);
+                    // Rechercher une entrée existante dans la table sensibilisation
+                    $sensibilisation = Sensibilisation::where('idoperateurcible', $operateurCible->idoperateurcible)->first();
+
+                    if ($sensibilisation) {
+                        // Mettre à jour la date de sensibilisation existante
+                        $sensibilisation->update([
+                            'datesensibilisation' => $dateNow,
+                        ]);
+                    } else {
+                        // Insérer une nouvelle entrée
+                        Sensibilisation::create([
+                            'idoperateurcible' => $operateurCible->idoperateurcible,
+                            'status' => 0,
+                            'idoperateur' => null,
+                            'datesensibilisation' => $dateNow,
+                            'dateconversion' => null
+                        ]);
+                    }
                 } else {
                     return response()->json(['message' => 'Opérateur non trouvé pour l\'email ' . $user['email']], 404);
                 }

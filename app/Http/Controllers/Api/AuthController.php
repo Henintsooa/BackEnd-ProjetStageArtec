@@ -190,7 +190,7 @@ class AuthController extends Controller
                 // Si l'authentification échoue, renvoyer un message d'erreur
                 return response()->json([
                     'status' => false,
-                    'message' => 'Erreur d\'authentification',
+                    'message' => 'Mot de passe ou email incorrect.',
                     'token' => null
                 ], 401);
             }
@@ -202,7 +202,6 @@ class AuthController extends Controller
             $customPayload = [
                 'id' => $user->id,
                 'email' => $user->email,
-                // Ajoutez d'autres champs si nécessaire
             ];
             $customToken = JWTAuth::fromUser($user, $customPayload);
 

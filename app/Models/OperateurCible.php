@@ -18,5 +18,7 @@ class OperateurCible extends Model
         'email',
         'idville',
         'status',
+        'idregime',
+        'adresse',
     ];
 }

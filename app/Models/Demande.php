@@ -22,6 +22,8 @@ class Demande extends Model
         'datedeclaration',
         'dateexpiration',
         'status',
+        'datedemande',
+        'idrenouvellement'
     ];
 
     // Pour les timestamps si vous utilisez des colonnes de création/majeure modifiée
