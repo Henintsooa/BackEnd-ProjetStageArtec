@@ -103,12 +103,12 @@ class RenewalController extends Controller
         try {
             foreach ($renewals as $renewalData) {
                 // Assurez-vous que $renewalData est un tableau et contient 'idrenouvellement'
-                if (is_array($renewalData) && isset($renewalData['idrenouvellement'])) {
+                if (is_array($renewalData) && isset($renewalData['renouvellement_id'])) {
                     // Récupérer le renouvellement
-                    $renouvellement = DB::table('renouvellementdetails')->where('idrenouvellement', $renewalData['idrenouvellement'])->first();
+                    $renouvellement = DB::table('renouvellementdetails')->where('renouvellement_id', $renewalData['renouvellement_id'])->first();
 
                     if (!$renouvellement) {
-                        throw new \Exception('Renouvellement introuvable pour l\'ID ' . $renewalData['idrenouvellement']);
+                        throw new \Exception('Renouvellement introuvable pour l\'ID ' . $renewalData['renouvellement_id']);
                     }
 
                     // Récupérer la demande associée
@@ -120,7 +120,7 @@ class RenewalController extends Controller
 
                     // Mettre à jour la date de notification
                     DB::table('renouvellement')
-                        ->where('idrenouvellement', $renouvellement->idrenouvellement)
+                        ->where('idrenouvellement', $renouvellement->renouvellement_id)
                         ->update(['datenotification' => $dateNow]);
 
                     // Préparer les informations pour l'email

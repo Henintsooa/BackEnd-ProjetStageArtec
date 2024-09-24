@@ -19,9 +19,10 @@ class FormulaireController extends Controller
 {
     public function getTypeFormulaireDetails()
     {
-        $typeFormulaire = TypeFormulaireDetails::where('status', 0)->get();
+        $typeFormulaire = TypeFormulaireDetails::where('status', 0)
+            ->orderBy('datecreationformulaire', 'desc')
+            ->get();
         return response()->json($typeFormulaire);
-
     }
 
     public function getFormulaireByType($idTypeFormulaire)

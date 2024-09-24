@@ -71,6 +71,7 @@ Route::get('/getDemandes', [DemandeController::class, 'getDemandes']);
 Route::get('/reponses/{id}', [DemandeController::class, 'getResponsesByDemande']);
 Route::get('/exportPdf/{id}', [DemandeController::class, 'exportPdf']);
 Route::get('/getDemandes/{id}', [DemandeController::class, 'getDemandesById']);
+Route::get('/getReponsesIdRenouvellement/{id}', [DemandeController::class, 'getFormulaireByIdRenouvellement']);
 
 
 
@@ -78,7 +79,11 @@ Route::post('/accepterDemande/{id}', [DemandeController::class, 'accepterDemande
 Route::post('/refuserDemande/{id}', [DemandeController::class, 'refuserDemande']);
 Route::post('/demandes/{iddemande}/info-request', [DemandeController::class, 'sendInfoRequest']);
 Route::post('/addDateDeclaration/{iddemande}', [DemandeController::class, 'addDateDeclaration']);
+Route::get('/documents-complementaires/{idDemande}', [DemandeController::class, 'getDocumentsComplementaires']);
 Route::post('/addDocumentSupplementaire/{iddemande}', [DemandeController::class, 'addDocumentSupplementaire']);
+Route::post('/updateDocumentSupplementaire', [DemandeController::class, 'updateDocumentSupplementaire']);
+Route::get('/documents/{idDemande}', [DemandeController::class, 'getDocumentsById']);
+
 
 
 Route::get('/statistics', [DashboardController::class, 'getStatistics']);
@@ -96,6 +101,7 @@ Route::post('/contact', [ContactController::class, 'sendContactMessage']);
 
 Route::get('/operateur/{id}', [DemandeController::class, 'getOperateur']);
 
+Route::get('/emails', [ContactController::class, 'getAllAdminEmails']);
 
 
 Route::middleware('auth:api')->group(function () {

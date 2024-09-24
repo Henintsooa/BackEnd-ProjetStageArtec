@@ -49,4 +49,18 @@ class ContactController extends Controller
         }
     }
 
+    public function getAllAdminEmails()
+    {
+        try {
+            // Sélectionner tous les utilisateurs ayant le statut 'admin'
+            $emails = DB::table('users')
+                ->where('status', 'admin')
+                ->pluck('email');
+
+            return response()->json(['emails' => $emails], 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Erreur lors de la récupération des emails', 'error' => $e->getMessage()], 500);
+        }
+    }
+
 }

@@ -8,7 +8,7 @@
     <style>
 
         @page {
-            margin: 150px 50px; /* Marge augmentée pour laisser plus de place au header et au footer */
+            margin: 150px 35px; /* Marge augmentée pour laisser plus de place au header et au footer */
         }
 
         body {
@@ -25,11 +25,11 @@
         }
 
         .header {
-            top: -125px; /* Placer le header en haut avec plus de marge */
+            top: -140px; /* Placer le header en haut avec plus de marge */
         }
 
         .footer {
-            bottom: -125px; /* Placer le footer en bas avec plus de marge */
+            bottom: -140px; /* Placer le footer en bas avec plus de marge */
         }
 
         .header img, .footer img {
@@ -52,7 +52,7 @@
             font-weight: bold;
             font-size: 11px;
             text-align: center; /* Centrer le texte à l'intérieur de la box */
-            margin: 0 auto 20px auto; /* Centrer la box elle-même */
+            margin: 0 auto 10px auto; /* Centrer la box elle-même */
             width: fit-content; /* Ajuste la largeur de la box en fonction du contenu */
         }
 
@@ -101,6 +101,25 @@
             margin-bottom: 10px;
             font-size: 12px;
         }
+
+        .custom-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .custom-table th, .custom-table td {
+        border: 1px solid black;
+        padding: 10px;
+        text-align: center;
+    }
+
+    .custom-table th {
+        background-color: #f1f1f1;
+    }
+
+    .custom-table tbody tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
     </style>
 </head>
 <body>
@@ -116,7 +135,7 @@
                 $firstResponse = $groupedResponses->first()->first();
             @endphp
             <div class="title-box">
-                {{ $firstResponse->nomtypeformulaire }}
+                {{ $firstResponse->descriptiontypeformulaire }}
             </div>
         @endif
 
@@ -158,15 +177,109 @@
                 </ul>
             </div>
 
+        @php
+            // Initialiser la lettre à "B" (ASCII pour 'B' est 66)
+            $letter = 'B';
+
+            // Définir les IDs des catégories spécifiques à afficher en tableau
+            $categoriesAsTable = [41, 42]; // Utilisez les IDs des catégories au lieu des noms
+
+            // Stocker les questions uniques pour chaque catégorie
+            $uniqueQuestions = [];
+
+            // Organiser les réponses par question pour les afficher en lignes sous chaque colonne
+            $responsesByQuestion = [];
+        @endphp
+
+        @php
+        $letter = 'B'; // Initialiser la lettre à "B"
+        $categoriesAsTable = [41, 42]; // IDs des catégories à afficher en tableau
+        @endphp
+
+        @foreach($groupedResponses as $category => $responses)
+        @if(isset($responses[0]->idcategoriequestion) && $responses[0]->idcategoriequestion !== null)
             @php
-                // Initialiser la lettre à "B" (ASCII pour 'B' est 66)
-                $letter = 'B';
+                $categoryId = $responses[0]->idcategoriequestion;
+                $categoryName = $responses[0]->nomcategoriequestion;
             @endphp
 
-            @foreach($groupedResponses as $categoryName => $responses)
-                @if($categoryName !== 'Documents PDF') <!-- Exclure la catégorie "Documents PDF" -->
+            @if($categoryId !== 1) <!-- Exclure la catégorie "Documents PDF" avec l'ID 1 -->
+                <!-- Vérifier si la catégorie doit être affichée en tableau par son ID -->
+                @if(in_array($categoryId, $categoriesAsTable))
                     <div class="section">
-                        <!-- Afficher la lettre suivie du nom de la catégorie -->
+                        <div class="section-title">{{ $letter }}. {{ $categoryName }}</div>
+                        <div class="section-content">
+                            <table class="custom-table">
+                                <thead>
+                                    <tr>
+                                        @php
+                                            $uniqueQuestions = [];
+                                        @endphp
+                                        @foreach($responses as $response)
+                                            @if(!in_array($response->textquestion, $uniqueQuestions))
+                                                @php
+                                                    $uniqueQuestions[] = $response->textquestion; // Ajouter la question à la liste des questions uniques
+                                                @endphp
+                                                <th>{{ $response->textquestion }}</th>
+                                            @endif
+                                        @endforeach
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @php
+                                        // Réorganiser les réponses par question
+                                        $responsesByQuestion = [];
+                                        foreach ($uniqueQuestions as $question) {
+                                            $responsesByQuestion[$question] = [];
+                                        }
+
+                                        // Remplir le tableau $responsesByQuestion avec les réponses pour chaque question
+                                        foreach ($responses as $response) {
+                                            $responsesByQuestion[$response->textquestion][] = $response;
+                                        }
+
+                                        // Déterminer le nombre maximum de réponses pour bien aligner les lignes
+                                        $maxResponses = 0;
+                                        foreach ($responsesByQuestion as $responseList) {
+                                            $maxResponses = max($maxResponses, count($responseList));
+                                        }
+                                    @endphp
+
+                                    <!-- Afficher les réponses sous chaque colonne -->
+                                    @for($i = 0; $i < $maxResponses; $i++)
+                                        <tr>
+                                            @foreach($uniqueQuestions as $question)
+                                                <td>
+                                                    @php
+                                                        // Vérifier s'il y a une réponse à cet index
+                                                        $response = $responsesByQuestion[$question][$i] ?? null;
+                                                    @endphp
+
+                                                    @if($response)
+                                                        @if($response->typequestion == 'text')
+                                                            {{ $response->textereponse }}
+                                                        @elseif($response->typequestion == 'number')
+                                                            {{ $response->nombrereponse }}
+                                                        @elseif($response->typequestion == 'file')
+                                                            <a href="{{ url($response->filereponse) }}" target="_blank">{{ $response->filereponse }}</a>
+                                                        @else
+                                                            Aucune réponse disponible
+                                                        @endif
+                                                    @else
+                                                        <!-- Cellule vide si pas de réponse -->
+                                                        &nbsp;
+                                                    @endif
+                                                </td>
+                                            @endforeach
+                                        </tr>
+                                    @endfor
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                @else
+                    <!-- Afficher les autres catégories sous forme de liste -->
+                    <div class="section">
                         <div class="section-title">{{ $letter }}. {{ $categoryName }}</div>
                         <div class="section-content">
                             <ul>
@@ -186,15 +299,17 @@
                             </ul>
                         </div>
                     </div>
-                    @php
-                        // Passer à la lettre suivante dans l'alphabet
-                        $letter = chr(ord($letter) + 1);
-                    @endphp
                 @endif
-            @endforeach
 
-
+                @php
+                    // Passer à la lettre suivante dans l'alphabet
+                    $letter = chr(ord($letter) + 1);
+                @endphp
+            @endif
+        @endif
+        @endforeach
         </div>
+
 
         <!-- Nouveau texte ajouté -->
         <div class="section" style="margin-top: 20px;">
@@ -206,7 +321,7 @@
                     <li>avoir lu et pris connaissance des textes réglementaires régissant le secteur des télécommunications.</li>
                 </ul>
                 <p>Je déclare que les renseignements fournis ci-dessus sont exacts.</p>
-                <p>Fait à ………………………, le ……………….</p>
+                <p>Fait à ………………………, le {{ \Carbon\Carbon::parse($responses[0]->datedemande)->format('d/m/Y') }}.</p>
                 <p>Signature:</p>
                 <br>
                 <br>

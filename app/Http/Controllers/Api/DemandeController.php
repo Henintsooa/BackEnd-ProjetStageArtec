@@ -37,6 +37,23 @@ class DemandeController extends Controller
         return response()->json($operateur);
     }
 
+    // public function getFormulaireByIdRenouvellement($idRenouvellement)
+    // {
+    //     // Récupérer l'ID de la demande à partir de l'ID de renouvellement
+    //     $renouvellement = DB::table('renouvellement')->where('idrenouvellement', $idRenouvellement)->first();
+
+    //     if (!$renouvellement) {
+    //         return null; // Ou gérer l'erreur comme vous le souhaitez
+    //     }
+
+    //     $idDemande = $renouvellement->iddemande;
+
+    //     // Récupérer le formulaire avec les questions et les détails des réponses
+    //     return Demande::with(['questions', 'reponseDetails' => function ($query) use ($idDemande) {
+    //         $query->where('iddemande', $idDemande);
+    //     }])->find($idDemande);
+    // }
+
     public function store(Request $request)
     {
         DB::beginTransaction();
@@ -205,7 +222,7 @@ class DemandeController extends Controller
             $email = $validatedData['email'];
             Mail::to($email)->send(new ConfirmationMail($demande));
 
-            return response()->json(['message' => 'Demande envoyée, Vous recevrez une réponse par email. Merci!', 'iddemande' => $demandeId], 201);
+            return response()->json(['message' => 'Demande de déclaration envoyée, Vous recevrez une réponse par email. Merci!', 'iddemande' => $demandeId], 201);
         } catch (\Exception $e) {
             DB::rollBack(); // Annuler la transaction en cas d'erreur générale
             // Retourner les détails de l'erreur pour le débogage
@@ -309,8 +326,10 @@ class DemandeController extends Controller
         if (!empty($startDate)) {
             $query->where('datedemande', '>=', $startDate);
         }
+
         if (!empty($endDate)) {
-            $query->where('datedemande', '<=', $endDate);
+            // Ajouter un jour à la fin de l'intervalle pour inclure toute la journée de endDate
+            $query->where('datedemande', '<', date('Y-m-d', strtotime($endDate . ' +1 day')));
         }
 
         // Filtrer par type de formulaire
@@ -323,14 +342,13 @@ class DemandeController extends Controller
             $query->where('nomville', 'ILIKE', '%' . $city . '%');
         }
 
-        $query->orderBy('datedemande', 'desc');
+        $query->orderBy('iddemande', 'desc');
         $demandes = $query->get();
 
         \Log::info('Demandes:', ['demandes' => $demandes->toArray()]);
 
         return response()->json($demandes);
     }
-
 
 
 
@@ -408,14 +426,14 @@ class DemandeController extends Controller
         }
 
         // Regrouper les réponses par catégorie
-        $groupedResponses = $responses->groupBy('nomcategoriequestion');
+        $groupedResponses = $responses->groupBy('idcategoriequestion');
 
         // Utiliser le nom de l'opérateur à partir de la première réponse
         $nomOperateur = $responses[0]->nomoperateur ?? 'Opérateur';
 
         // Nettoyer le nom de l'opérateur pour le rendre sûr pour un nom de fichier
         $nomOperateur = $this->sanitizeFileName($nomOperateur);
-
+        Log::info("groupedResponses",[$groupedResponses]);
         // Générez le contenu HTML de la vue avec les données
         $html = View::make('pdf.reponsedetails')->with('groupedResponses', $groupedResponses)->render();
 
@@ -489,11 +507,15 @@ class DemandeController extends Controller
         }
     }
 
-    public function refuserDemande($idDemande)
+    public function refuserDemande(Request $request, $idDemande)
     {
         DB::beginTransaction();
 
         try {
+            $validatedData = $request->validate([
+                'motif_refus' => 'required|string',
+            ]);
+
             $demande = DB::table('demandedetails')
                 ->where('iddemande', $idDemande)
                 ->first();
@@ -507,9 +529,9 @@ class DemandeController extends Controller
                 ->where('iddemande', $idDemande)
                 ->update(['status' => 0]); // Statut 0 pour refuser
 
-            // Envoyer un email de confirmation
+            // Envoyer un email de confirmation avec le motif de refus
             $email = $demande->email;
-            Mail::to($email)->send(new DemandeRejectedMail($demande));
+            Mail::to($email)->send(new DemandeRejectedMail($demande, $validatedData['motif_refus']));
 
             DB::commit();
 
@@ -526,13 +548,57 @@ class DemandeController extends Controller
         }
     }
 
+    // public function sendInfoRequest(Request $request, $idDemande)
+    // {
+    //     DB::beginTransaction();
+
+    //     try {
+    //         $validated = $request->validate([
+    //             'message' => 'required|string',
+    //         ]);
+
+    //         $demande = DB::table('demandedetails')
+    //             ->where('iddemande', $idDemande)
+    //             ->first();
+
+    //         if (!$demande) {
+    //             return response()->json(['error' => 'Demande non trouvée.'], 404);
+    //         }
+
+    //         // Mettre à jour le statut de la demande
+    //         DB::table('demande')
+    //             ->where('iddemande', $idDemande)
+    //             ->update(['status' => null]); // Statut null pour plus d'informations
+
+    //         $email = $demande->email;
+    //         $message = is_string($validated['message']) ? $validated['message'] : '';
+    //         Mail::to($email)->send(new InfoRequestMail($demande, $message));
+
+
+    //         DB::commit();
+
+    //         return response()->json(['message' => 'Demande rejetée et email envoyé avec succès.'], 200);
+
+    //     } catch (\Exception $e) {
+    //         DB::rollBack(); // Annuler la transaction en cas d'erreur
+    //         return response()->json([
+    //             'error' => 'Une erreur est survenue lors de l\'acceptation de la demande.',
+    //             'details' => $e->getMessage(),
+    //             'file' => $e->getFile(),
+    //             'line' => $e->getLine()
+    //         ], 500);
+    //     }
+    // }
+
     public function sendInfoRequest(Request $request, $idDemande)
     {
         DB::beginTransaction();
 
         try {
+            // Validation des documents
             $validated = $request->validate([
-                'message' => 'required|string',
+                'documents' => 'required|array',
+                'documents.*' => 'string', // chaque document doit être une chaîne de caractères
             ]);
 
             $demande = DB::table('demandedetails')
@@ -548,25 +614,35 @@ class DemandeController extends Controller
                 ->where('iddemande', $idDemande)
                 ->update(['status' => null]); // Statut null pour plus d'informations
 
-            $email = $demande->email;
-            $message = is_string($validated['message']) ? $validated['message'] : '';
-            Mail::to($email)->send(new InfoRequestMail($demande, $message));
+            // Insertion des documents supplémentaires
+            foreach ($validated['documents'] as $documentName) {
+                DB::table('documentsupplementaire')->insert([
+                    'iddemande' => $idDemande,
+                    'nom' => $documentName,
+                ]);
+            }
 
+            // Envoi de l'email avec les noms des documents comme message
+            $email = $demande->email;
+            $message = implode(", ", $validated['documents']); // Convertir les noms des documents en une chaîne de caractères
+            Mail::to($email)->send(new InfoRequestMail($demande, $message));
 
             DB::commit();
 
-            return response()->json(['message' => 'Demande rejetée et email envoyé avec succès.'], 200);
+            return response()->json(['message' => 'Documents enregistrés et email envoyé avec succès.'], 200);
 
         } catch (\Exception $e) {
-            DB::rollBack(); // Annuler la transaction en cas d'erreur
+            DB::rollBack(); // Annuler la transaction en cas d'erreur d'insertion
             return response()->json([
-                'error' => 'Une erreur est survenue lors de l\'acceptation de la demande.',
+                'error' => 'Une erreur est survenue lors du traitement de la demande.',
                 'details' => $e->getMessage(),
                 'file' => $e->getFile(),
                 'line' => $e->getLine()
             ], 500);
         }
     }
+
+
 
     public function addDateDeclaration(Request $request, $id)
     {
@@ -664,4 +740,104 @@ class DemandeController extends Controller
         }
     }
 
+    public function getDocumentsById($idDemande)
+    {
+        try {
+            // Récupérer les documents supplémentaires pour la demande donnée
+            $documents = DB::table('documentsupplementaire')
+                ->where('iddemande', $idDemande)
+                ->get();
+
+            return response()->json($documents, 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 500,
+                'error' => 'Erreur lors de la récupération des documents.',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+
+    public function updateDocumentSupplementaire(Request $request)
+    {
+        try {
+            \Log::info('Documents:', ['documents' => $request->all()]);
+
+            // Validation des données
+            $request->validate([
+                'documents.*.id' => 'required|integer|exists:documentsupplementaire,iddocumentsupplementaire',
+                'documents.*.nomfichier' => 'required|string|max:200',
+                'documents.*.fichier' => 'nullable|file|mimes:pdf|max:4096',
+            ], [
+                'documents.*.fichier.mimes' => 'Le fichier doit être un PDF.',
+                'documents.*.fichier.max' => 'Le fichier ne doit pas dépasser 4 Mo.',
+            ]);
+
+
+            $documents = $request->input('documents');
+            if (!is_array($documents)) {
+                return response()->json(['status' => 400, 'error' => 'Le format des documents est incorrect.'], 400);
+            }
+
+            foreach ($documents as $index => $documentData) {
+                $idDocumentSupplementaire = $documentData['id'];
+                $document = DB::table('documentsupplementaire')->where('iddocumentsupplementaire', $idDocumentSupplementaire)->first();
+
+                if (!$document) {
+                    return response()->json(['status' => 404, 'error' => "Document supplémentaire avec ID $idDocumentSupplementaire non trouvé."], 404);
+                }
+
+                // Préparer les données à mettre à jour
+                $updateData = ['nom' => $documentData['nomfichier']];
+
+                // Vérifier si un nouveau fichier est fourni
+                $file = $request->file("documents.$index.fichier"); // Utilisation de $index ici
+                if ($file) {
+                    $fileExtension = $file->getClientOriginalExtension();
+                    $fileName = Str::uuid() . '.' . $fileExtension;
+                    $filePath = 'public/documents_supplementaires/' . $fileName;
+
+                    // Déplacer le fichier
+                    $file->move(storage_path('app/public/documents_supplementaires'), $fileName);
+
+                    // Créer l'URL pour accéder au fichier
+                    $fileUrl = 'storage/documents_supplementaires/' . $fileName;
+
+                    // Ajouter l'URL du fichier à mettre à jour
+                    $updateData['filereponse'] = $fileUrl;
+                    \Log::info('Fichier reçu:', ['fichier' => $file]);
+                    \Log::info('URL du fichier:', ['fileUrl' => $fileUrl]);
+                } else {
+                    \Log::warning("Aucun fichier trouvé pour le document avec ID $idDocumentSupplementaire");
+                }
+
+                // Mettre à jour le document
+                DB::table('documentsupplementaire')
+                    ->where('iddocumentsupplementaire', $idDocumentSupplementaire)
+                    ->update($updateData);
+            }
+
+
+            return response()->json(['message' => 'Documents supplémentaires mis à jour avec succès.'], 200);
+
+        } catch (\Exception $e) {
+            \Log::error('Erreur lors de la mise à jour des documents supplémentaires.', ['message' => $e->getMessage()]);
+            return response()->json(['status' => 500, 'error' => 'Erreur lors de la mise à jour des documents supplémentaires.', 'message' => $e->getMessage()], 500);
+        }
+    }
+
+
+
+
+
+
+    public function getDocumentsComplementaires($idDemande)
+    {
+        $documents = DB::table('documentsupplementaire')
+            ->where('iddemande', $idDemande)
+            ->get();
+
+        return response()->json($documents);
+    }
 }

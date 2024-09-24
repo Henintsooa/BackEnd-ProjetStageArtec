@@ -15,9 +15,9 @@
           <div class="card-body">
             <h3 class="card-title">Renouvellement de déclaration au près de l'ARTEC</h3>
             <ul>
-                <li>Formulaire : {{ $operateur->nomtypeformulaire }}</li>
-                <li>Date de Déclaration : {{ \Carbon\Carbon::parse($operateur->datedeclaration)->format('d/m/Y') }}</li>
-                <li>Région : {{ $operateur->nomville }}</li>
+                <li><strong>Formulaire:</strong> {{ $operateur->nomtypeformulaire }}</li>
+                <li><strong>Date de Déclaration:</strong> {{ \Carbon\Carbon::parse($operateur->datedeclaration)->format('d/m/Y') }}</li>
+                <li><strong>Région:</strong> {{ $operateur->nomville }}</li>
             </ul>
             <p class="card-text">Cher Opérateur,</p>
             <p>Votre formulaire de {{ $operateur->nomtypeformulaire }} arrive bientôt à expiration.</p>

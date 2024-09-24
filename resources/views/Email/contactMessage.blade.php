@@ -7,23 +7,7 @@
   <link href="{{ asset('css/bootstrap.min.css') }}" rel="stylesheet">
   <link href="{{ asset('soft-ui-dashboard.css?v=1.0.3') }}" rel="stylesheet">
   <style>
-    .card-body {
-      font-size: 16px;
-      line-height: 1.6;
-    }
-    .card-title {
-      font-size: 20px;
-      font-weight: bold;
-      color: #2d3436;
-      text-align: center;
-    }
-    p {
-      margin-bottom: 1.2em;
-    }
-    .signature {
-      font-weight: bold;
-      margin-top: 20px;
-    }
+
   </style>
 </head>
 <body>

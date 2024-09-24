@@ -8,29 +8,13 @@
   <link href="{{ asset('soft-ui-dashboard.css?v=1.0.3') }}" rel="stylesheet">
   <style>
     ul {
-      list-style-type: none;
-      padding: 0;
+      padding-left: 0; /* Pour aligner à gauche */
+      list-style-type: none; /* Supprimer les puces */
     }
     ul li {
-      background: #ffeeba;
-      border-radius: 5px;
-      padding: 10px;
-      margin-bottom: 10px;
-      font-size: 16px;
-      font-weight: 500;
-      display: flex;
-      align-items: center;
+      margin-bottom: 10px; /* Ajouter un espace entre les éléments de la liste */
     }
-    ul li::before {
-      content: "\f129";
-      font-family: "FontAwesome";
-      color: #ffc107;
-      margin-right: 10px;
-    }
-    p {
-      font-size: 16px;
-      line-height: 1.5;
-    }
+
   </style>
 </head>
 <body>
@@ -41,9 +25,9 @@
           <div class="card-body">
             {{-- <h3 class="card-title text-center">Demande d'informations supplémentaires - ARTEC</h3> --}}
             <ul>
-                <li><strong>Formulaire :</strong> {{ $demande->nomtypeformulaire }}</li>
-                <li><strong>Date de Déclaration :</strong> {{ \Carbon\Carbon::parse($demande->datedeclaration)->format('d/m/Y') }}</li>
-                <li><strong>Région :</strong> {{ $demande->nomville }}</li>
+                <li><strong>Formulaire:</strong> {{ $demande->nomtypeformulaire }}</li>
+                <li><strong>Date de Déclaration:</strong> {{ \Carbon\Carbon::parse($demande->datedeclaration)->format('d/m/Y') }}</li>
+                <li><strong>Région:</strong> {{ $demande->nomville }}</li>
             </ul>
             <p class="card-text">Cher Opérateur,</p>
             <p class="card-text">

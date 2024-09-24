@@ -359,6 +359,7 @@ SELECT
     t.idtypeformulaire AS idtypeformulaire,
     t.anneevalidite AS anneevalidite,
     t.nom AS nomTypeFormulaire,
+    t.description AS descriptionTypeFormulaire,
     v.nom AS nomVille,
     r.nom AS nomRegime,
     CASE
@@ -378,7 +379,7 @@ JOIN regime r ON t.idRegime = r.idregime;
 
 
 
-CREATE VIEW reponseDetails AS
+	CREATE VIEW reponseDetails AS
     SELECT
         d.iddemande,
         d.datedemande,
@@ -395,12 +396,14 @@ CREATE VIEW reponseDetails AS
         s.nom AS nomStructureJuridique,
         o.nom AS nomoperateur,
         t.nom AS nomTypeFormulaire,
+        t.description AS descriptiontypeformulaire,
         q.textQuestion,
 		r.idreponseformulaire,
         r.texteReponse,
         r.nombreReponse,
         r.fileReponse,
-        tq.designation AS typeQuestion,
+        tq.nom AS typeQuestion,
+        cq.idCategorieQuestion AS idcategoriequestion,
         cq.nom AS nomCategorieQuestion
     FROM
         demande d
@@ -426,7 +429,8 @@ CREATE VIEW reponseDetails AS
     JOIN
         categorieQuestion cq ON q.idCategorieQuestion = cq.idCategorieQuestion
 
-    GROUP BY d.iddemande, oi.idoperateurinformation, q.idquestion, r.idreponseformulaire,v.nom, s.nom, o.nom, t.nom, tq.designation, cq.nom;
+    GROUP BY d.iddemande, oi.idoperateurinformation, q.idquestion, r.idreponseformulaire,v.nom, s.nom, o.nom, t.nom,t.description, tq.nom,cq.idCategorieQuestion ,cq.nom;
+
 
 CREATE VIEW kpiDeclarationSensibilisation AS
 SELECT

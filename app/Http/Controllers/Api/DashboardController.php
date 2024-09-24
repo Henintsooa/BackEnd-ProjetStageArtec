@@ -20,6 +20,16 @@ class DashboardController extends Controller
         $convertis = DB::table('sensibilisation')->where('status', 1)->count();
         $operateurs = DB::table('operateur')->count();
 
+        $sansSensibilisation = DB::table('demandedetails')
+        ->where('status', 2)
+        ->whereNotIn('idoperateur', function($query) {
+            $query->select('idoperateur')
+                ->from('sensibilisation')
+                ->whereNotNull('idoperateur');
+        })
+        ->count();
+
+
         return response()->json([
             'totalDemandes' => $totalDemandes,
             'validees' => $validees,
@@ -28,7 +38,8 @@ class DashboardController extends Controller
             'convertis' => $convertis,
             'operateurs' => $operateurs,
             'enattenteinfo' => $enattenteinfo,
-            'enattente' => $enattente
+            'enattente' => $enattente,
+            'sansSensibilisation' => $sansSensibilisation
         ]);
     }
 

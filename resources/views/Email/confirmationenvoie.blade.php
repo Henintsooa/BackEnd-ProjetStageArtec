@@ -8,24 +8,11 @@
   <link href="{{ asset('soft-ui-dashboard.css?v=1.0.3') }}" rel="stylesheet">
   <style>
     ul {
-      list-style-type: none;
-      padding: 0;
+      padding-left: 0; /* Pour aligner à gauche */
+      list-style-type: none; /* Supprimer les puces */
     }
     ul li {
-      background: #f8f9fa;
-      border-radius: 5px;
-      padding: 10px;
-      margin-bottom: 10px;
-      font-size: 16px;
-      font-weight: 500;
-      display: flex;
-      align-items: center;
-    }
-    ul li::before {
-      content: "\f058";
-      font-family: "FontAwesome";
-      color: #5cb85c;
-      margin-right: 10px;
+      margin-bottom: 10px; /* Ajouter un espace entre les éléments de la liste */
     }
   </style>
 </head>
@@ -41,9 +28,9 @@
               Nous vous remercions d'avoir soumis votre déclaration auprès de l'ARTEC. Votre demande a été enregistrée avec succès et sera traitée dans les plus brefs délais.
             </p>
             <ul>
-              <li><strong>Formulaire:</strong> {{ $demande->nomtypeformulaire }}</li>
-              <li><strong>Date de Déclaration:</strong> {{ \Carbon\Carbon::parse($demande->datedeclaration)->format('d/m/Y') }}</li>
-              <li><strong>Région:</strong> {{ $demande->nomville }}</li>
+                <li><strong>Formulaire:</strong> {{ $demande->nomtypeformulaire }}</li>
+                <li><strong>Date de Déclaration:</strong> {{ \Carbon\Carbon::parse($demande->datedeclaration)->format('d/m/Y') }}</li>
+                <li><strong>Région:</strong> {{ $demande->nomville }}</li>
             </ul>
             <p class="card-text">
               Nous vous informerons de la suite donnée à votre demande par email. Si vous avez des questions ou souhaitez plus d'informations, n'hésitez pas à nous contacter.

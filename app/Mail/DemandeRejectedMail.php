@@ -14,6 +14,7 @@ class DemandeRejectedMail extends Mailable
     use Queueable, SerializesModels;
 
     public $demande;
+    public $motifRefus;
 
     /**
      * Create a new message instance.
@@ -21,9 +22,10 @@ class DemandeRejectedMail extends Mailable
      * @param $demande
      * @return void
      */
-    public function __construct($demande)
+    public function __construct($demande, $motifRefus)
     {
         $this->demande = $demande;
+        $this->motifRefus = $motifRefus;
     }
 
     /**

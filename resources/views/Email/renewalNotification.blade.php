@@ -6,6 +6,11 @@
   <title>Renouvellement de déclaration - Notification pour l'Administrateur</title>
   <link href="{{ asset('css/bootstrap.min.css') }}" rel="stylesheet">
   <link href="{{ asset('soft-ui-dashboard.css?v=1.0.3') }}" rel="stylesheet">
+  <style>
+    ul {
+      list-style-type: none;
+    }
+  </style>
 </head>
 <body>
   <div class="container my-5">
@@ -15,10 +20,10 @@
           <div class="card-body">
             <h3 class="card-title">Renouvellement de déclaration - Action requise</h3>
             <ul>
-                <li><strong>Opérateur :</strong> {{ $renewal->nomoperateur }}</li>
-                <li><strong>Formulaire :</strong> {{ $renewal->nomtypeformulaire }}</li>
-                <li><strong>Date de Déclaration :</strong> {{ \Carbon\Carbon::parse($renewal->datedeclaration)->format('d/m/Y') }}</li>
-                <li><strong>Région :</strong> {{ $renewal->nomville }}</li>
+                <li>Opérateur :{{ $renewal->nomoperateur }}</li>
+                <li>Formulaire :{{ $renewal->nomtypeformulaire }}</li>
+                <li>Date de Déclaration :{{ \Carbon\Carbon::parse($renewal->datedeclaration)->format('d/m/Y') }}</li>
+                <li>Région :{{ $renewal->nomville }}</li>
             </ul>
             <p class="card-text">Cher Administrateur,</p>
             <p>L'opérateur <strong>{{ $renewal->nomoperateur }}</strong> doit renouveler son formulaire de <strong>{{ $renewal->nomtypeformulaire }}</strong>.</p>

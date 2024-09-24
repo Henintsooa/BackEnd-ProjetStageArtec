@@ -7,16 +7,16 @@
   <link href="{{ asset('css/bootstrap.min.css') }}" rel="stylesheet">
   <link href="{{ asset('soft-ui-dashboard.css?v=1.0.3') }}" rel="stylesheet">
   <style>
-    .btn-primary {
-      background-color: #007bff;
-      border-color: #007bff;
+    /* .btn-primary {
+      background-color: #017B38;
+      border-color: #017B38;
       padding: 10px 20px;
-      font-size: 16px;
+      font-size: 10px;
+    } */
+    ul {
+      list-style-type: none;
     }
-    p {
-      font-size: 16px;
-      line-height: 1.5;
-    }
+
   </style>
 </head>
 <body>
@@ -31,7 +31,7 @@
               Nous avons le plaisir de vous inviter à vous déclarer en tant qu'Opérateur auprès de l'ARTEC. Afin de régulariser votre activité, nous vous encourageons à créer un compte et à compléter le formulaire de déclaration en fonction de vos activités.
             </p>
             <div class="text-center my-4">
-              <a href="{{ url('http://localhost:4200/inscription') }}" class="btn btn-primary">S'Inscrire</a>
+              <a href="{{ url('http://localhost:4200/inscription') }}">S'Inscrire</a>
             </div>
             <p class="card-text">
               En cliquant sur le lien ci-dessus, vous accéderez à notre plateforme de déclaration. Si vous avez des questions ou avez besoin d'assistance, n'hésitez pas à nous contacter.
