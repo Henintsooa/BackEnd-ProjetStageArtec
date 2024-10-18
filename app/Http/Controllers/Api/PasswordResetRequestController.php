@@ -57,13 +57,13 @@ class PasswordResetRequestController extends Controller
     public function failedResponse()
     {
         return response()->json([
-            'error' => 'Cet Email n\'existe pas'
+            'error' => 'Email non trouvé. Veuillez vérifier l\'adresse saisie.'
         ],404);
     }
     public function successResponse()
     {
         return response()->json([
-            'message' => 'Email envoyé'
+            'message' => 'Un email de réinitialisation a été envoyé à votre adresse.'
         ],200);
     }
 }

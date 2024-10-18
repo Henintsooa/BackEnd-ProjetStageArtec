@@ -535,7 +535,7 @@ class DemandeController extends Controller
 
             DB::commit();
 
-            return response()->json(['message' => 'Demande d\'information envoyée avec succès'], 200);
+            return response()->json(['message' => 'Demande de déclaration rejetée et email envoyé avec succès'], 200);
 
         } catch (\Exception $e) {
             DB::rollBack(); // Annuler la transaction en cas d'erreur
@@ -629,7 +629,7 @@ class DemandeController extends Controller
 
             DB::commit();
 
-            return response()->json(['message' => 'Documents enregistrés et email envoyé avec succès.'], 200);
+            return response()->json(['message' => 'Documents enregistrés et email de demande d\'information envoyé avec succès.'], 200);
 
         } catch (\Exception $e) {
             DB::rollBack(); // Annuler la transaction en cas d'erreur d'insertion

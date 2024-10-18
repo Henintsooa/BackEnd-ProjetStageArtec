@@ -82,6 +82,7 @@ class SensibilisationController extends Controller
                     ->orWhere('ville', 'ILIKE', $keyword)
                     ->orWhere(DB::raw('TO_CHAR(datesensibilisation, \'YYYY-MM-DD\')'), 'LIKE', $keyword);
             })
+            ->orderBy('idoperateurcible', 'desc')
             ->get();
 
         return response()->json($operateurCibles);
@@ -115,6 +116,7 @@ class SensibilisationController extends Controller
                 }
                 return $query->where('sensibilisationstatus', $status);
             })
+            ->orderBy('idoperateurcible', 'desc')
             ->get();
 
         return response()->json($operateurCibles);
@@ -257,13 +259,16 @@ class SensibilisationController extends Controller
             'idoperateurcible' => 'integer|exists:operateurcible,idoperateurcible',
             'idoperateur' => 'required|integer|exists:operateur,idoperateur',
             'status' => 'required|integer',
-            'dateconversion' => 'nullable|date',
         ]);
 
         $idoperateurcible = $validated['idoperateurcible'];
         $idoperateur = $validated['idoperateur'];
         $status = $validated['status'];
-        $dateconversion = $validated['dateconversion'] ?? null;
+
+        $dateconversion = DB::table('demandedetails')
+        ->where('idoperateur', $idoperateur)
+        ->orderBy('datedemande', 'desc')
+        ->value('datedemande');
 
         // Vérifier si l'enregistrement existe
         $exists = DB::table('sensibilisation')
@@ -287,24 +292,36 @@ class SensibilisationController extends Controller
 
 
 
-    public function getOperateurs()
+    public function getOperateurs(Request $request)
     {
-        // Utilisation de la vue SQL "OperateurConvertir" pour obtenir les opérateurs
+        $keyword = $request->input('keyword', '');
+
         $operateurs = DB::table('operateurconvertir')
             ->select('operateurconvertir.*')
+            ->when($keyword, function ($query) use ($keyword) {
+                return $query->where('nom', 'like', '%' . $keyword . '%');
+            })
+            ->orderBy('idoperateur', 'desc')
             ->get();
 
         return response()->json($operateurs);
     }
 
-    public function getOperateurCibles()
+    public function getOperateurCibles(Request $request)
     {
+        $keyword = $request->input('keyword', '');
+
         $operateurCibles = DB::table('operateurciblesconvertir')
             ->select('operateurciblesconvertir.*')
+            ->when($keyword, function ($query) use ($keyword) {
+                return $query->where('nom', 'like', '%' . $keyword . '%');
+            })
+            ->orderBy('idoperateurcible', 'desc')
             ->get();
 
         return response()->json($operateurCibles);
     }
+
 
 
 }

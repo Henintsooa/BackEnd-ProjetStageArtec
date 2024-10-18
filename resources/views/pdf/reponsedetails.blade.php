@@ -147,7 +147,7 @@
         <p>Liste des pièces administratives à annexer au présent formulaire :</p>
         <ul>
             @foreach($groupedResponses as $categoryName => $responses)
-                @if($categoryName === 'Documents PDF')
+                @if($responses[0]->idcategoriequestion === 1)
                     @foreach($responses as $response)
                         <li>
                             @if($response->typequestion == 'file')

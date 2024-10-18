@@ -342,7 +342,7 @@ CREATE OR REPLACE VIEW OperateurCiblesConvertir AS
 SELECT o.*,s.datesensibilisation,s.dateconversion
 FROM operateurcible o
 LEFT JOIN sensibilisation s ON o.idOperateurCible = s.idOperateurCible
-WHERE s.status <> 1 or s.status is null  and o.status = 0
+WHERE s.status <> 1 and o.status = 0
 
 CREATE VIEW demandeDetails AS
 SELECT

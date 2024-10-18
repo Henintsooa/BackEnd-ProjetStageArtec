@@ -28,7 +28,7 @@
             <h3 class="card-title text-center">Déclaration à l'ARTEC</h3>
             <p class="card-text">Bonjour,</p>
             <p class="card-text">
-              Nous avons le plaisir de vous inviter à vous déclarer en tant qu'Opérateur auprès de l'ARTEC. Afin de régulariser votre activité, nous vous encourageons à créer un compte et à compléter le formulaire de déclaration en fonction de vos activités.
+              Nous avons le plaisir de vous inviter à vous déclarer auprès de l'ARTEC. Afin de régulariser votre activité, nous vous encourageons à créer un compte et à compléter le formulaire de déclaration en fonction de vos activités.
             </p>
             <div class="text-center my-4">
               <a href="{{ url('http://localhost:4200/inscription') }}">S'Inscrire</a>

@@ -32,7 +32,7 @@
                 Nous vous remercions d'avoir soumis votre déclaration. Après un examen attentif de votre demande, nous sommes au regret de vous informer que celle-ci a été refusée. Ce refus est dû à des éléments spécifiques qui ne répondent pas aux critères de conformité établis par l'ARTEC.
               </p>
               <p class="card-text">
-                En effet, la décision a été prise en raison du motif suivant : <strong>{{ $motifRefus }}</strong>. Nous vous encourageons à prendre en compte cette information pour vos futures soumissions.
+                En effet, la décision a été prise en raison du motif suivant : <strong>{{ $motifRefus }}</strong>.
               </p>
               <p class="card-text">
                 Si vous avez des questions concernant cette décision ou si vous souhaitez obtenir davantage d'informations, n'hésitez pas à nous contacter.

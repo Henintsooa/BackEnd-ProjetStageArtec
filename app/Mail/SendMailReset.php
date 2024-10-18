@@ -30,7 +30,7 @@ class SendMailReset extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Send Mail Reset',
+            subject: 'Réinitialisation du Mot de Passe',
         );
     }
 

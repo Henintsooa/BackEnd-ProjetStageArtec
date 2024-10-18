@@ -22,7 +22,7 @@
             <p class="card-text">Cher Opérateur,</p>
             <p>Votre formulaire de {{ $operateur->nomtypeformulaire }} arrive bientôt à expiration.</p>
             <p>Date d'expiration : {{ \Carbon\Carbon::parse($operateur->dateexpiration)->format('d-m-Y') }}</p>
-            <p>Veuillez renouveler votre formulaire si vous souhaitez continuer vos activités.</p>
+            <p>Veuillez renouveler votre formulaire s'il vous plait si vous envisagez de continuer votre activité.</p>
             <a href="{{ url('http://localhost:4200/login') }}" class="button">Connectez-vous et renouvelez maintenant</a>
 
             <p>Cordialement,</p>

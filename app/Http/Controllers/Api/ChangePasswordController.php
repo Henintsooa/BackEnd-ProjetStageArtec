@@ -15,44 +15,49 @@ use Illuminate\Support\Facades\Log;
 class ChangePasswordController extends Controller
 {
     public function passwordResetProcess(Request $request)
-{
-    try {
-        // Validation des entrées
-        $validated = $request->validate([
-            'email' => 'required|email',
-            'resetToken' => 'required|string',
-            'password' => [
-                'required',
-                'string',
-                'min:8',
-                'confirmed',
-                'regex:/[a-z]/',
-                'regex:/[A-Z]/',
-                'regex:/[0-9]/',
-                'regex:/[@$!%*?&.,;:]/'
-            ],
-            'password_confirmation' => 'required|string|min:8'
-        ],[
-            'password.min' => 'Le mot de passe doit comporter au moins 8 caractères.',
-            'password.regex' => 'Le mot de passe doit contenir au moins une lettre majuscule, une lettre minuscule, un chiffre et un caractère spécial.',
-            'password_confirmation.required' => 'La confirmation du mot de passe est requise.',
-        ]);
+    {
+        try {
+            // Validation des entrées
+            $validated = $request->validate([
+                'email' => 'required|email',
+                'resetToken' => 'required|string',
+                'password' => [
+                    'required',
+                    'string',
+                    'min:8',
+                    'confirmed',
+                    'regex:/[a-z]/',  // Au moins une lettre minuscule
+                    'regex:/[A-Z]/',  // Au moins une lettre majuscule
+                    'regex:/[0-9]/',  // Au moins un chiffre
+                    'regex:/[@$!%*?&.,;:]/' // Au moins un caractère spécial
+                ],
+                'password_confirmation' => 'required'
+            ],[
+                'password.min' => 'Le mot de passe doit comporter au moins 8 caractères.',
+                'password.regex' => 'Le mot de passe doit contenir au moins une lettre majuscule, une lettre minuscule, un chiffre et un caractère spécial.',
+                'password.confirmed' => 'La confirmation du mot de passe ne correspond pas.',
+                'password_confirmation.required' => 'La confirmation du mot de passe est requise.',
+            ]);
 
-        Log::info('Validation passed.');
-        Log::info('Validated Data:', $validated);
-
-        if ($this->updatePasswordRow($request)) {
-            Log::info('Password updated successfully.');
-            return $this->resetPassword($request);
-        } else {
-            Log::warning('Token not found or password update failed.');
-            return $this->tokenNotFoundError();
+            // Logique de mise à jour du mot de passe
+            if ($this->updatePasswordRow($request)) {
+                return $this->resetPassword($request);
+            } else {
+                return $this->tokenNotFoundError();
+            }
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            $errors = $e->errors();
+            return response()->json([
+                'message' => 'Erreur de validation du mot de passe',
+                'errors' => array_merge(
+                    $errors['password'] ?? [],
+                    $errors['password_confirmation'] ?? []
+                )
+            ], 422);
         }
-    } catch (\Illuminate\Validation\ValidationException $e) {
-        Log::error('Validation failed:', $e->errors());
-        return response()->json(['message' => 'Validation failed', 'errors' => $e->errors()], 422);
     }
-}
+
+
 
     //verifie si token est valide
     private function updatePasswordRow($request)
