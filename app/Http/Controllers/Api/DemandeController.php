@@ -74,7 +74,7 @@ class DemandeController extends Controller
                 'reponses.*.idquestion' => 'required|integer|exists:question,idquestion',
                 'reponses.*.textereponse' => 'nullable|string|max:300',
                 'reponses.*.nombrereponse' => 'nullable|numeric',
-                'reponses.*.filereponse' => 'nullable|file|mimes:pdf|max:4096',
+                'reponses.*.filereponse' => 'nullable|file|mimes:pdf|max:2096',
                 'idrenouvellement' => 'nullable|exists:renouvellement,idrenouvellement',
             ], [
                 'id.required' => 'L\'ID de l\'opérateur est requis.',
@@ -109,8 +109,8 @@ class DemandeController extends Controller
                 'reponses.*.texteReponse.max' => 'La réponse textuelle ne peut pas dépasser 300 caractères.',
                 'reponses.*.nombreReponse.numeric' => 'La réponse numérique doit être un nombre.',
                 'reponses.*.fileReponse.file' => 'Le fichier de réponse doit être un fichier.',
-                'reponses.*.fileReponse.mimes' => 'Le fichier de réponse doit être au format PDF.'
-                // 'reponses.*.fileReponse.max' => 'Le fichier de réponse ne peut pas dépasser 2 Mo.'
+                'reponses.*.fileReponse.mimes' => 'Le fichier de réponse doit être au format PDF.',
+                'reponses.*.fileReponse.max' => 'Le fichier de réponse ne peut pas dépasser 2 Mo.'
             ]);
 
 
@@ -227,7 +227,7 @@ class DemandeController extends Controller
             DB::rollBack(); // Annuler la transaction en cas d'erreur générale
             // Retourner les détails de l'erreur pour le débogage
             return response()->json([
-                'error' => 'Une erreur est survenue lors de la création de la demande.',
+                'error' => $e->getMessage(),
                 'details' => $e->getMessage(), // Message d'erreur
                 'file' => $e->getFile(), // Fichier où l'erreur a eu lieu
                 'line' => $e->getLine() // Ligne où l'erreur a eu lieu
@@ -700,7 +700,7 @@ class DemandeController extends Controller
             // Validation des données
             $request->validate([
                 'nomfichier' => 'required|string|max:200',
-                'fichier' => 'required|file|mimes:pdf|max:4096', // fichier PDF max 2MB
+                'fichier' => 'required|file|mimes:pdf|max:2096', // fichier PDF max 2MB
             ]);
 
             // Récupérer le fichier depuis la requête
@@ -764,10 +764,10 @@ class DemandeController extends Controller
             $request->validate([
                 'documents.*.id' => 'required|integer|exists:documentsupplementaire,iddocumentsupplementaire',
                 'documents.*.nomfichier' => 'required|string|max:200',
-                'documents.*.fichier' => 'nullable|file|mimes:pdf|max:4096',
+                'documents.*.fichier' => 'nullable|file|mimes:pdf|max:2096',
             ], [
                 'documents.*.fichier.mimes' => 'Le fichier doit être un PDF.',
-                'documents.*.fichier.max' => 'Le fichier ne doit pas dépasser 4 Mo.',
+                'documents.*.fichier.max' => 'Le fichier ne doit pas dépasser 2 Mo.',
             ]);
 
 

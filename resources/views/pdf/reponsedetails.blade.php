@@ -8,7 +8,7 @@
     <style>
 
         @page {
-            margin: 150px 35px; /* Marge augmentée pour laisser plus de place au header et au footer */
+            margin: 110px 35px; /* Marge augmentée pour laisser plus de place au header et au footer */
         }
 
         body {
@@ -29,7 +29,7 @@
         }
 
         .footer {
-            bottom: -140px; /* Placer le footer en bas avec plus de marge */
+            bottom: -100px; /* Placer le footer en bas avec plus de marge */
         }
 
         .header img, .footer img {
@@ -38,8 +38,8 @@
         }
 
         .content {
-            margin-top: 20px; /* Ajoutez un espacement en haut du contenu */
-            margin-bottom: 50px; /* S'assurer que le contenu ne chevauche pas le footer */
+            margin-top: 15px; /* Ajoutez un espacement en haut du contenu */
+            margin-bottom: 15px; /* S'assurer que le contenu ne chevauche pas le footer */
             padding: 0 20px;
         }
 
