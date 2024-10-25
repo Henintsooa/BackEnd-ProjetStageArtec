@@ -96,6 +96,7 @@ class SensibilisationController extends Controller
 
         // Construire la requête pour les opérateurs cibles
         $operateurCibles = DB::table('operateurcibledetails')
+            ->where('status', '=', 0)
             ->where(function($query) use ($keywords) {
                 foreach ($keywords as $keyword) {
                     $keyword = '%' . $keyword . '%'; // Préparation pour le LIKE
@@ -128,7 +129,7 @@ class SensibilisationController extends Controller
     {
         try {
             $operateur = OperateurCible::find($id);
-
+            \Log::info('Données operateur : ', $operateur ? $operateur->toArray() : []);
             if ($operateur) {
                 $operateur->status = 1;
                 $operateur->save();
@@ -267,7 +268,7 @@ class SensibilisationController extends Controller
 
         $dateconversion = DB::table('demandedetails')
         ->where('idoperateur', $idoperateur)
-        ->orderBy('datedemande', 'desc')
+        ->orderBy('datedemande', 'asc')
         ->value('datedemande');
 
         // Vérifier si l'enregistrement existe

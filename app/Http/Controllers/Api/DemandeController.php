@@ -239,16 +239,11 @@ class DemandeController extends Controller
     {
         $user = Auth::user();
 
-        if (!$user) {
-            return response()->json(['error' => 'Utilisateur non authentifié.'], 401);
-        }
-        if ($user->status !== 'admin') {
-            return response()->json(['error' => 'Accès refusé.'], 403);
-        }
-
+        // Tri par l'état de lecture (lue false d'abord), puis par date de création
         $notifications = DB::table('notifications')
             ->where('id', $user->id)
-            ->orderBy('created_at', 'desc')
+            ->orderBy('lue', 'asc') // lue false (non lues) en premier
+            ->orderBy('created_at', 'desc') // puis tri par date décroissante
             ->get();
 
         $unreadCount = $notifications->where('lue', false)->count();
@@ -258,6 +253,7 @@ class DemandeController extends Controller
             'unreadCount' => $unreadCount
         ]);
     }
+
 
 
     public function markNotificationAsRead($idnotification)

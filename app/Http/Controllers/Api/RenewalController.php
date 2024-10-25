@@ -169,9 +169,12 @@ class RenewalController extends Controller
 
         // Obtenez les détails de renouvellement pour cet opérateur
         $renewals = DB::table('renouvellementdetails as r')
-            ->leftJoin('demandedetails as d', 'r.idrenouvellement', '=', 'd.renouvellement_id')
+            ->leftJoin('demandedetails as d', 'r.renouvellement_id', '=', 'd.idrenouvellement')
             ->where('r.idoperateur', $operateur->idoperateur)
-            ->whereNull('d.renouvellement_id') // Exclure les renouvellements déjà présents dans demandedetails
+            ->where(function($query) {
+                $query->whereNull('d.idrenouvellement') // Exclure les renouvellements déjà présents dans demandedetails
+                    ->orWhere('d.status', '!=', 2);   // Exclure ceux avec status = 2
+            })
             ->select('r.*') // Sélectionner toutes les colonnes de renouvellementdetails
             ->get();
 

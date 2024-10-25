@@ -320,11 +320,12 @@ LEFT JOIN
 
 
 CREATE OR REPLACE VIEW OperateurConvertir AS
-SELECT o.*,s.dateconversion, s.status AS sensibilisationStatus , d.status AS demandeStatus
+SELECT DISTINCT o.idOperateur,o.id ,o.nom, s.dateconversion, s.status AS sensibilisationStatus, d.status AS demandeStatus
 FROM operateur o
 LEFT JOIN sensibilisation s ON o.idOperateur = s.idOperateur
-LEFT JOIN demandedetails d on o.idOperateur = d.idOperateur
-WHERE s.status IS NULL and d.status = 2
+LEFT JOIN demandedetails d ON o.idOperateur = d.idOperateur
+WHERE s.status IS NULL AND d.status = 2;
+
 
 -- CREATE OR REPLACE VIEW OperateurCiblesConvertir AS
 -- SELECT o.*,s.dateconversion, s.status
