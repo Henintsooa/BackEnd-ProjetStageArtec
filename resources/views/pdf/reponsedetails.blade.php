@@ -25,7 +25,7 @@
         }
 
         .header {
-            top: -140px; /* Placer le header en haut avec plus de marge */
+            top: -127px; /* Placer le header en haut avec plus de marge */
         }
 
         .footer {

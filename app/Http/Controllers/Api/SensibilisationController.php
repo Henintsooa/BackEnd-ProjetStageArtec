@@ -117,7 +117,14 @@ class SensibilisationController extends Controller
                 }
                 return $query->where('sensibilisationstatus', $status);
             })
-            ->orderBy('idoperateurcible', 'desc')
+            ->when($status !== '', function ($query) use ($status) {
+                if ($status === 'null') {
+                    return $query->whereNull('sensibilisationstatus');
+                }
+                return $query->where('sensibilisationstatus', $status);
+            })
+            // Appliquer le tri conditionnel
+            ->orderByRaw('CASE WHEN datesensibilisation IS NOT NULL THEN 0 ELSE 1 END, datesensibilisation DESC, idoperateurcible DESC')
             ->get();
 
         return response()->json($operateurCibles);

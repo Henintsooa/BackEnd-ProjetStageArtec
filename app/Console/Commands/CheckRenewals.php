@@ -114,7 +114,6 @@ class CheckRenewals extends Command
                     'type' => 'Renouvellement',
                     'lue' => false,
                     'iddemande' => $renewal->iddemande,
-                    'renouvellement' => true,
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);

@@ -338,7 +338,7 @@ class DemandeController extends Controller
             $query->where('nomville', 'ILIKE', '%' . $city . '%');
         }
 
-        $query->orderBy('iddemande', 'desc');
+        $query->orderBy('datedemande', 'desc');
         $demandes = $query->get();
 
         \Log::info('Demandes:', ['demandes' => $demandes->toArray()]);
